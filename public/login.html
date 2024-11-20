@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="submit"]:hover {
+            background-color: #4cae4c;
+        }
+        #feedback {
+            margin-top: 10px;
+            color: red;
+            text-align: center;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Login</h1>
+        <form id="adminLoginForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter Username" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter Password" required>
+            
+            <input type="submit" value="Login" id="submitbtn">
+        </form>
+        <div id="feedback" aria-live="polite"></div> <!-- Feedback Message -->
+    </div>
+
+    <script>
+        document.getElementById("adminLoginForm").addEventListener("submit", async function(event) {
+            event.preventDefault(); // Prevent form from submitting
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const submitBtn = document.getElementById("submitbtn");
+            const feedback = document.getElementById("feedback");
+
+            // Reset feedback before making the request
+            feedback.textContent = '';
+            feedback.className = '';
+
+            submitBtn.disabled = true; // Disable the button to prevent multiple clicks
+            feedback.textContent = "Logging in..."; // Show loading message
+
+            try {
+                console.log("Sending login request with:", { username, password }); // Debugging Print
+
+                const response = await fetch("http://localhost:9900/admin/login", { // Update to production URL when needed
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json", // Add Accept header to handle response type
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Response data:", data); // Debugging Print
+
+                if (data.success) { 
+                    // Successful login
+                    if (data.admin_id && data.username && data.role) { // Check if essential data exists
+                        sessionStorage.setItem('adminId', data.admin_id); // Store admin ID
+                        sessionStorage.setItem('adminUsername', data.username); // Store username
+                        sessionStorage.setItem('adminRole', data.role); // Store role
+                    } else {
+                        console.error("Incomplete login data:", data); // Log any missing data
+                        feedback.textContent = "Login successful, but role information is missing.";
+                        return; // Stop further execution
+                    }
+
+                    feedback.textContent = "Login successful. Redirecting..."; // Show success message
+                    feedback.className = 'success';
+
+                    setTimeout(() => {
+                        window.location.href = "db.html"; // Redirect to dashboard
+                    }, 2000); // Delay for 2 seconds
+                } else {
+                    // Failed login
+                    feedback.textContent = "Login failed: " + (data.message || "Invalid credentials");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                feedback.textContent = "An error occurred during login: " + error.message;
+            } finally {
+                submitBtn.disabled = false; // Re-enable the button after fetch is complete
+            }
+        });
+    </script>
+</body>
+</html>

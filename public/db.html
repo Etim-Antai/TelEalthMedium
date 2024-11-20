@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            height: 100vh; /* Full height for layout */
+            flex-direction: column; /* Column layout */
+        }
+        header {
+            background-color: #5cb85c;
+            color: white;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #fff;
+        }
+        nav a.social-icon {
+            margin-left: 10px;
+            color: white; /* Color for social media icons */
+        }
+        h1 {
+            margin: 20px 0;
+        }
+        .container {
+            display: flex;
+            flex: 1; /* Make the container take remaining space */
+        }
+        .sidebar {
+            width: 200px; /* Width for both sidebars */
+            background-color: #5cb85c;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto; /* Enable scrolling if the content is too tall */
+        }
+        .sidebar h2 {
+            color: white;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            text-align: left;
+            padding: 10px;
+            text-decoration: none;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        .main-content {
+            flex: 1; /* Take remaining space between sidebars */
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px; /* Margin around the main content */
+            display: flex; /* Use flexbox for horizontal layout */
+            flex-direction: column; /* Stack main content items vertically */
+        }
+        .stats {
+            display: flex; /* Make stats horizontal */
+            justify-content: space-between; /* Space between items */
+            margin-bottom: 20px; /* Space below the stats */
+        }
+        .stat-item {
+            flex: 1; /* Equal spacing for stat items */
+            padding: 10px;
+            text-align: center; /* Center align text */
+            border: 1px solid #ccc; /* Optional: border for better visibility */
+            border-radius: 5px; /* Match other styles */
+            background-color: #e7f3e7;
+        }
+        footer {
+            background-color: #5cb85c;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        footer p {
+            margin: 5px 0;
+        }
+
+        /* Updated styles for section titles */
+        .main-content h2 {
+            color: #5cb85c; /* Set a color for the section titles */
+        }
+
+        /* Styles for search input */
+        .search-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 10px; /* Adjust for padding */
+            top: 50%;
+            transform: translateY(-50%);
+            color: #5cb85c; /* Icon color */
+            font-size: 18px; /* Increased icon size */
+        }
+
+        .search-container input {
+            padding-left: 40px; /* Increased space to accommodate the icon */
+            width: 80%;
+            padding: 10px; /* Increased padding for better usability */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 5px;
+            font-size: 16px; /* Increased font size */
+        }
+
+        /* Styles for buttons */
+        .button {
+            background-color: #5cb85c; /* Button background color */
+            color: white; /* Button text color */
+            padding: 12px 15px; /* Increased button padding */
+            border: none; /* Remove border */
+            border-radius: 5px; /* Match other styles */
+            cursor: pointer; /* Pointer on hover */
+            transition: background-color 0.3s; /* Smooth transition */
+            text-align: center; /* Center align text in buttons */
+            font-size: 16px; /* Button font size */
+        }
+
+        .button:hover {
+            background-color: #4cae4c; /* Darker shade on hover */
+        }
+
+        /* Specific styles for the "Back to Dashboard" button */
+        .back-to-dashboard {
+            background-color: #d9534f; /* Red color for Back to Dashboard button */
+        }
+
+        .back-to-dashboard:hover {
+            background-color: #c9302c; /* Darker shade on hover */
+        }
+
+        /* Chart Styles */
+        canvas {
+            max-width: 60%; /* Make charts responsive */
+            height: 150px;  /* Reduced height for charts */
+            margin-bottom: 20px;
+        }
+        
+        /* Table Styles */
+        table {
+            width: 100%; /* Full width within main content */
+            margin-top: 20px;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none; /* Initially hidden */
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #5cb85c;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Style for all Font Awesome icons (except social media icons) */
+        .sidebar a i,
+        .main-content .stat-item h3 i {
+            color: yellow; /* Set icon color to yellow */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <span id="username"></span> | 
+            <span id="role"></span>
+            <a href="adminlogout.html">Logout</a>
+            <a href="adminlanding.html">Landing Page</a>
+            <a href="https://facebook.com" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com" target="_blank" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="https://linkedin.com" target="_blank" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <h2>Quick Actions</h2>
+            <a href="registerPatient.html"><i class="fas fa-user-plus"></i> Register Patient</a>
+            <a href="registerDoctor.html"><i class="fas fa-user-md"></i> Register Doctor</a>
+            <a href="createAppointment.html"><i class="fas fa-calendar-check"></i> Create Appointment</a>
+            <a href="manageUsers.html"><i class="fas fa-users-cog"></i> Manage Users</a>
+        </div>
+
+        <div class="main-content">
+            <div class="stats" id="stats-container">
+                <div class="stat-item">
+                    <h3><i class="fas fa-user-injured"></i> Patients</h3>
+                    <p id="patient-count">102</p>
+                    <a href="javascript:void(0);" class="button" onclick="viewPatients()">View All Patients</a>
+                </div>
+                <div class="stat-item">
+                    <h3><i class="fas fa-user-md"></i> Doctors</h3>
+                    <p id="doctor-count">20</p>
+                    <a href="javascript:void(0);" class="button" onclick="viewDoctors()">View All Doctors</a>
+                </div>
+                <div class="stat-item">
+                    <h3><i class="fas fa-calendar-alt"></i> Appointments</h3>
+                    <p id="appointment-count">44</p>
+                    <a href="javascript:void(0);" class="button" onclick="viewAppointments()">View All Appointments</a>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <h2>Appointments Over Time</h2>
+            <canvas id="appointmentsChart"></canvas>
+
+            <h2>Patient Distribution by Gender</h2>
+            <canvas id="genderChart"></canvas>
+
+            <h2>Doctor Specializations</h2>
+            <canvas id="specializationsChart"></canvas>
+
+            <!-- Patient List Table -->
+            <h2>Patients List</h2>
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-patients" placeholder="Search Patients..." oninput="searchPatients()">
+            </div>
+            <table id="patient-list">
+                <thead>
+                    <tr>
+                        <th>Patient ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Date of Birth</th>
+                        <th>Gender</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody id="patients-data"></tbody>
+            </table>
+            <button class="button back-to-dashboard" onclick="hideAllTables()">Back to Dashboard</button>
+
+            <!-- Doctor List Table -->
+            <h2>Doctors List</h2>
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-doctors" placeholder="Search Doctors..." oninput="searchDoctors()">
+            </div>
+            <table id="doctor-list">
+                <thead>
+                    <tr>
+                        <th>Doctor ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Specialization</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Schedule</th>
+                    </tr>
+                </thead>
+                <tbody id="doctors-data"></tbody>
+            </table>
+            <button class="button back-to-dashboard" onclick="hideAllTables()">Back to Dashboard</button>
+
+            <!-- Appointment List Table -->
+            <h2>Appointments List</h2>
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-appointments" placeholder="Search Appointments..." oninput="searchAppointments()">
+            </div>
+            <table id="appointment-list">
+                <thead>
+                    <tr>
+                        <th>Appointment ID</th>
+                        <th>Patient ID</th>
+                        <th>Doctor ID</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="appointments-data"></tbody>
+            </table>
+            <button class="button back-to-dashboard" onclick="hideAllTables()">Back to Dashboard</button>
+        </div>
+
+        <div class="sidebar">
+            <h2>More Links</h2>
+            <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
+            <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="blog.html"><i class="fas fa-blog"></i> Blog</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 AllRigt Reserve. All rights reserved.</p>
+        <p>Contact Us: support@allrigtreserve.com | Phone: (123) 456-7890</p>
+        <p>Providing quality telemedicine services for better health management.</p>
+    </footer>
+
+    <script>
+        // Check if user is authenticated
+        if (!sessionStorage.getItem('adminUsername')) {
+            window.location.href = 'login.html'; // Redirect if not logged in
+        }
+
+        // Load admin info on the dashboard
+        document.getElementById('username').innerText = `${sessionStorage.getItem('adminUsername')}`;
+        document.getElementById('role').innerText = `${sessionStorage.getItem('adminRole')}`;
+
+        // Fetch dashboard data from the server
+        async function loadDashboard() {
+            try {
+                const response = await fetch('http://localhost:9900/admin/dashboard');
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                console.log('Dashboard data:', data);
+
+                if (data.success) {
+                    document.getElementById('patient-count').innerText = data.data.patientsCount;
+                    document.getElementById('doctor-count').innerText = data.data.doctorsCount;
+                    document.getElementById('appointment-count').innerText = data.data.appointmentsCount;
+
+                    // Store data for later usage
+                    window.patientsData = data.data.patients;
+                    window.doctorsData = data.data.doctors;
+                    window.appointmentsData = data.data.appointments;
+
+                    // Load Charts
+                    loadAppointmentsChart(data.data.appointments);
+                    loadGenderChart(data.data.patients);
+                    loadSpecializationsChart(data.data.doctors);
+                } else {
+                    console.error('Failed to load dashboard data:', data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
+        }
+
+        function loadAppointmentsChart(appointments) {
+            const ctx = document.getElementById('appointmentsChart').getContext('2d');
+            const counts = {};
+            appointments.forEach(appointment => {
+                const date = new Date(appointment.appointment_date);
+                const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                counts[monthYear] = (counts[monthYear] || 0) + 1;
+            });
+
+            const labels = Object.keys(counts);
+            const data = Object.values(counts);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Appointments',
+                        data: data,
+                        borderColor: 'rgba(255, 206, 86, 1)', // New line color
+                        backgroundColor: 'rgba(255, 206, 86, 0.2)', // Fill color below the line
+                        fill: true // Fill the area below the line
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function loadGenderChart(patients) {
+            const ctx = document.getElementById('genderChart').getContext('2d');
+            const genderCount = { male: 0, female: 0, other: 0 };
+
+            patients.forEach(patient => {
+                const gender = patient.gender.toLowerCase(); // Convert gender to lower case
+                if (gender === 'male') {
+                    genderCount.male++;
+                } else if (gender === 'female') {
+                    genderCount.female++;
+                } else {
+                    genderCount.other++;
+                }
+            });
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Male', 'Female', 'Other'],
+                    datasets: [{
+                        data: [genderCount.male, genderCount.female, genderCount.other],
+                        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 159, 64, 0.6)'], // New colors
+                        borderColor: 'rgba(0, 0, 0, 1)', // Border color for visibility
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        function loadSpecializationsChart(doctors) {
+            const ctx = document.getElementById('specializationsChart').getContext('2d');
+            const specializationCount = {};
+
+            doctors.forEach(doctor => {
+                specializationCount[doctor.specialization] = (specializationCount[doctor.specialization] || 0) + 1;
+            });
+
+            const labels = Object.keys(specializationCount);
+            const data = Object.values(specializationCount);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Doctors',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)' // New bar color
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // View all patients
+        function viewPatients() {
+            const patientsData = window.patientsData;
+
+            const patientsTableBody = document.getElementById('patients-data');
+            patientsTableBody.innerHTML = ''; // Clear previous data
+
+            if (patientsData && patientsData.length > 0) {
+                patientsData.forEach(patient => {
+                    const row = patientsTableBody.insertRow();
+                    row.insertCell(0).innerText = patient.patient_id;
+                    row.insertCell(1).innerText = patient.first_name;
+                    row.insertCell(2).innerText = patient.last_name;
+                    row.insertCell(3).innerText = patient.email;
+                    row.insertCell(4).innerText = patient.phone;
+                    row.insertCell(5).innerText = patient.date_of_birth;
+                    row.insertCell(6).innerText = patient.gender;
+                    row.insertCell(7).innerText = patient.address;
+                });
+
+                // Show the patient list
+                document.getElementById('patient-list').style.display = 'table';
+                document.getElementById('doctor-list').style.display = 'none';
+                document.getElementById('appointment-list').style.display = 'none';
+            } else {
+                patientsTableBody.innerHTML = '<tr><td colspan="8">No patients available.</td></tr>';
+                document.getElementById('patient-list').style.display = 'table';
+            }
+        }
+
+        // View all doctors
+        function viewDoctors() {
+            const doctorsData = window.doctorsData;
+
+            const doctorsTableBody = document.getElementById('doctors-data');
+            doctorsTableBody.innerHTML = ''; // Clear previous data
+
+            if (doctorsData && doctorsData.length > 0) {
+                doctorsData.forEach(doctor => {
+                    const row = doctorsTableBody.insertRow();
+                    row.insertCell(0).innerText = doctor.doctor_id;
+                    row.insertCell(1).innerText = doctor.first_name;
+                    row.insertCell(2).innerText = doctor.last_name;
+                    row.insertCell(3).innerText = doctor.specialization;
+                    row.insertCell(4).innerText = doctor.email;
+                    row.insertCell(5).innerText = doctor.phone;
+                    row.insertCell(6).innerText = doctor.schedule;
+                });
+
+                // Show the doctor list
+                document.getElementById('doctor-list').style.display = 'table';
+                document.getElementById('patient-list').style.display = 'none';
+                document.getElementById('appointment-list').style.display = 'none';
+            } else {
+                doctorsTableBody.innerHTML = '<tr><td colspan="7">No doctors available.</td></tr>';
+                document.getElementById('doctor-list').style.display = 'table';
+            }
+        }
+
+        // View all appointments
+        function viewAppointments() {
+            const appointmentsData = window.appointmentsData;
+
+            const appointmentsTableBody = document.getElementById('appointments-data');
+            appointmentsTableBody.innerHTML = ''; // Clear previous data
+
+            if (appointmentsData && appointmentsData.length > 0) {
+                appointmentsData.forEach(appointment => {
+                    const row = appointmentsTableBody.insertRow();
+                    row.insertCell(0).innerText = appointment.appointment_id;
+                    row.insertCell(1).innerText = appointment.patient_id;
+                    row.insertCell(2).innerText = appointment.doctor_id;
+                    row.insertCell(3).innerText = appointment.appointment_date;
+                    row.insertCell(4).innerText = appointment.appointment_time;
+                    row.insertCell(5).innerText = appointment.status;
+                });
+
+                // Show the appointment list
+                document.getElementById('appointment-list').style.display = 'table';
+                document.getElementById('patient-list').style.display = 'none';
+                document.getElementById('doctor-list').style.display = 'none';
+            } else {
+                appointmentsTableBody.innerHTML = '<tr><td colspan="6">No appointments available.</td></tr>';
+                document.getElementById('appointment-list').style.display = 'table';
+            }
+        }
+
+        // Search Functions
+        function searchPatients() {
+            const input = document.getElementById('search-patients').value.toLowerCase();
+            const rows = document.getElementById('patients-data').getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let match = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j]) {
+                        const cellContent = cells[j].textContent || cells[j].innerText;
+                        if (cellContent.toLowerCase().includes(input)) {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+
+                rows[i].style.display = match ? '' : 'none';
+            }
+        }
+
+        function searchDoctors() {
+            const input = document.getElementById('search-doctors').value.toLowerCase();
+            const rows = document.getElementById('doctors-data').getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let match = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j]) {
+                        const cellContent = cells[j].textContent || cells[j].innerText;
+                        if (cellContent.toLowerCase().includes(input)) {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+
+                rows[i].style.display = match ? '' : 'none';
+            }
+        }
+
+        function searchAppointments() {
+            const input = document.getElementById('search-appointments').value.toLowerCase();
+            const rows = document.getElementById('appointments-data').getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let match = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j]) {
+                        const cellContent = cells[j].textContent || cells[j].innerText;
+                        if (cellContent.toLowerCase().includes(input)) {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+
+                rows[i].style.display = match ? '' : 'none';
+            }
+        }
+
+        // Hide all tables and show stats
+        function hideAllTables() {
+            document.getElementById('patient-list').style.display = 'none';
+            document.getElementById('doctor-list').style.display = 'none';
+            document.getElementById('appointment-list').style.display = 'none';
+        }
+
+        // Load the dashboard data when the page is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+            hideAllTables(); // Ensure all lists are hidden initially
+        });
+    </script>
+</body>
+</html>

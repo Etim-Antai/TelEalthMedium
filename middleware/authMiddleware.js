@@ -1,26 +1,28 @@
-// Middleware for admin routes
+/// Middleware for admin routes
 const adminAuth = (req, res, next) => {
     console.log("Admin authorization check:");
-    console.log("Session Data:", req.session); // Log the session data
-    if (req.session && req.session.adminData && req.session.adminData.id) {
-        console.log(`Admin access granted for admin ID: ${req.session.adminData.id}`);
-        return next(); // User is authenticated, proceed to the requested route
+    
+    // Log session data for debugging
+    if (req.session) {
+        console.log("Session Data:", req.session); // Log the session data
+
+        // Check if adminData exists in session
+        if (req.session.adminData && req.session.adminData.id) {
+            console.log(`Admin access granted for admin ID: ${req.session.adminData.id}`);
+            return next(); // User is authenticated, proceed to the requested route
+        } else {
+            console.warn("Admin data not found in the session.");
+        }
+    } else {
+        console.warn("Session does not exist.");
     }
-    // If not authenticated
+
+    // If not authenticated, respond with a 401 Unauthorized status
     console.log("Unauthorized admin access attempt");
     res.status(401).json({ message: 'Unauthorized: Please log in' });
 };
 
-
-
-
-
-
-
-
-
-
-
+module.exports = { adminAuth };
 
 
 

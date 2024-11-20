@@ -5,11 +5,8 @@ const { adminAuth } = require('../middleware/authMiddleware');
 
 // Admin Registration
 router.post('/register', adminController.register);
-
-// url: http://localhost:9900/admin/register
-// method: POST
-
-
+// URL: http://localhost:9900/admin/register
+// Method: POST
 
 // Admin Login
 router.post('/login', adminController.login);
@@ -17,12 +14,17 @@ router.post('/login', adminController.login);
 // Admin Logout
 router.get('/logout', adminController.logout);
 
+// Route to register a new patient
+router.post('/register-patient', adminAuth, adminController.addPatient);
+
+// Route to register a new doctor
+router.post('/register-doctor', adminAuth, adminController.addDoctor);
+// URL: http://localhost:9900/admin/register-doctor
 
 // Protected routes (require authentication)
 
 // Display a list of patients (admin only), with search and filter options.
 router.get('/patients/:search?/:filterByGender?', adminAuth, adminController.getPatients);
-
 
 // Display a list of appointments (admin only), with search and filter options.
 router.get('/appointments/:search?/:filterByStatus?', adminAuth, adminController.getAppointments);

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background-color: #5cb85c;
+            color: white;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #fff;
+        }
+        h1 {
+            margin: 20px 0;
+        }
+        .dashboard-container {
+            width: 80%;
+            max-width: 1000px;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .count-section {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .count-item {
+            margin: 0 10px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f9f9f9;
+        }
+        .button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <span id="username"></span> | 
+            <span id="role"></span>
+            <a href="adminlogout.html">Logout</a>
+            <a href = "adminlanding.html">Landing Page</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="count-section">
+            <div class="count-item">
+                <h3>Patients</h3>
+                <p id="patient-count">0</p>
+            </div>
+            <div class="count-item">
+                <h3>Doctors</h3>
+                <p id="doctor-count">0</p>
+            </div>
+            <div class="count-item">
+                <h3>Appointments</h3>
+                <p id="appointment-count">0</p>
+            </div>
+        </div>
+
+        <h2>Manage Patients</h2>
+        <input type="text" id="search-patient" placeholder="Search Patients..." oninput="filterPatients()" />
+        <button class="button" onclick="window.location.href='addpatient.html'">Add Patient</button>
+        <button class="button" onclick="window.location.href='http://localhost:9900/admin/patients'">View All Patients</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Date of Birth</th>
+                    <th>Gender</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody id="patient-list">
+                <!-- Dynamic patient data will be populated here -->
+                <tr>
+                    <td colspan="8" style="text-align:center; display: none;" id="no-patients-msg">No patients found.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Manage Doctors</h2>
+        <button class="button" onclick="window.location.href='adddoctor.html'">Add Doctor</button>
+        <button class="button" onclick="window.location.href='http://localhost:9900/admin/doctors'">View All Doctors</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Doctor ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Specialization</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Schedule</th>
+                </tr>
+            </thead>
+            <tbody id="doctor-list">
+                <!-- Dynamic doctor data will be populated here -->
+            </tbody>
+        </table>
+
+        <h2>Manage Appointments</h2>
+        <button class="button" onclick="window.location.href='http://localhost:9900/admin/appointments'">View All Appointments</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Appointment ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="appointment-list">
+                <!-- Dynamic appointment data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Check if user is authenticated
+        if (!sessionStorage.getItem('adminUsername')) {
+            window.location.href = 'login.html'; // Redirect if not logged in
+        }
+
+        // Load admin info on the dashboard
+        document.getElementById('username').innerText = `${sessionStorage.getItem('adminUsername')}`;
+        document.getElementById('role').innerText = `${sessionStorage.getItem('adminRole')}`;
+
+        async function loadCounts() {
+            try {
+                const [patientsResponse, doctorsResponse, appointmentsResponse] = await Promise.all([
+                    fetch('http://localhost:9900/admin/patients/count', { credentials: 'include' }),
+                    fetch('http://localhost:9900/admin/doctors/count', { credentials: 'include' }),
+                    fetch('http://localhost:9900/admin/appointments/count', { credentials: 'include' })
+                ]);
+
+                if (patientsResponse.ok && doctorsResponse.ok && appointmentsResponse.ok) {
+                    const patientsCount = await patientsResponse.json();
+                    const doctorsCount = await doctorsResponse.json();
+                    const appointmentsCount = await appointmentsResponse.json();
+
+                    document.getElementById('patient-count').innerText = patientsCount.count;
+                    document.getElementById('doctor-count').innerText = doctorsCount.count;
+                    document.getElementById('appointment-count').innerText = appointmentsCount.count;
+                }
+            } catch (error) {
+                console.error('Failed to load counts:', error.message);
+            }
+        }
+
+        async function loadPatients() {
+            try {
+                const response = await fetch('http://localhost:9900/admin/patients', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load patients');
+
+                const patients = await response.json();
+                const patientList = document.getElementById('patient-list');
+                patientList.innerHTML = ''; // Clear the list first
+
+                patients.forEach(patient => {
+                    const row = patientList.insertRow();
+                    row.insertCell(0).innerText = patient.patient_id; // Ensure this matches your data structure
+                    row.insertCell(1).innerText = patient.first_name; 
+                    row.insertCell(2).innerText = patient.last_name; 
+                    row.insertCell(3).innerText = patient.email; 
+                    row.insertCell(4).innerText = patient.phone; 
+                    row.insertCell(5).innerText = patient.date_of_birth; 
+                    row.insertCell(6).innerText = patient.gender; 
+                    row.insertCell(7).innerText = patient.address; 
+                });
+
+                // Show or hide the "No patients found" message
+                document.getElementById('no-patients-msg').style.display = patients.length === 0 ? '' : 'none';
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        async function loadDoctors() {
+            try {
+                const response = await fetch('http://localhost:9900/admin/doctors', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load doctors');
+
+                const doctors = await response.json();
+                const doctorList = document.getElementById('doctor-list');
+                doctorList.innerHTML = ''; // Clear the list first
+
+                doctors.forEach(doctor => {
+                    const row = doctorList.insertRow();
+                    row.insertCell(0).innerText = doctor.doctor_id; 
+                    row.insertCell(1).innerText = doctor.first_name; 
+                    row.insertCell(2).innerText = doctor.last_name; 
+                    row.insertCell(3).innerText = doctor.specialization; 
+                    row.insertCell(4).innerText = doctor.email; 
+                    row.insertCell(5).innerText = doctor.phone; 
+                    row.insertCell(6).innerText = doctor.schedule; 
+                });
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch('http://localhost:9900/admin/appointments', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load appointments');
+
+                const appointments = await response.json();
+                const appointmentList = document.getElementById('appointment-list');
+                appointmentList.innerHTML = ''; // Clear the list first
+
+                appointments.forEach(appointment => {
+                    const row = appointmentList.insertRow();
+                    row.insertCell(0).innerText = appointment.appointment_id; 
+                    row.insertCell(1).innerText = appointment.patient_id; 
+                    row.insertCell(2).innerText = appointment.doctor_id; 
+                    row.insertCell(3).innerText = appointment.appointment_date; 
+                    row.insertCell(4).innerText = appointment.appointment_time; 
+                    row.insertCell(5).innerText = appointment.status; 
+                });
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        // Filter Patients Function
+        function filterPatients() {
+            const input = document.getElementById('search-patient').value.toLowerCase();
+            const patientRows = document.getElementById('patient-list').getElementsByTagName('tr');
+            let noPatients = true;
+
+            for (let i = 0; i < patientRows.length; i++) {
+                const patientRow = patientRows[i];
+                const cells = patientRow.getElementsByTagName('td');
+                let match = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j]) {
+                        const cellContent = cells[j].textContent || cells[j].innerText;
+                        if (cellContent.toLowerCase().includes(input)) {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (match) {
+                    patientRow.style.display = '';
+                    noPatients = false;
+                } else {
+                    patientRow.style.display = 'none';
+                }
+            }
+
+            document.getElementById('no-patients-msg').style.display = noPatients ? '' : 'none';
+        }
+
+        // Load all data when the page is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCounts();
+            loadPatients();
+            loadDoctors();
+            loadAppointments();
+        });
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>
+  

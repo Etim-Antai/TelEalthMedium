@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Telemedicine Service</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+        }
+        header {
+            background-color: #5cb85c;
+            color: white;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #fff;
+        }
+        aside {
+            width: 20%;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #ccc;
+        }
+        main {
+            width: 80%;
+            padding: 20px;
+        }
+        h1 {
+            margin: 20px 0;
+        }
+        footer {
+            width: 100%;
+            background-color: #5cb85c;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            margin-top: 20px;
+        }
+        footer p {
+            margin: 5px 0;
+        }
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-item {
+            margin-bottom: 15px;
+        }
+        .form-item label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-item input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .button {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Telemedicine Service</h1>
+        <nav>
+            <a href="login.html">Login</a>
+            <a href="admin.html">Admin Dashboard</a>
+        </nav>
+    </header>
+
+    <aside>
+        <h3>Quick Links</h3>
+        <ul>
+            <li><a href="register_patient.html">Register Patient</a></li>
+            <li><a href="register_doctor.html">Register Doctor</a></li>
+            <li><a href="view_patients.html">View Patients</a></li>
+            <li><a href="view_doctors.html">View Doctors</a></li>
+        </ul>
+    </aside>
+
+    <main>
+        <div class="form-container">
+            <h2>Register Patient</h2>
+            <form id="patientForm" onsubmit="registerPatient(event)">
+                <div class="form-item">
+                    <label for="patient-first-name">First Name</label>
+                    <input type="text" id="patient-first-name" required>
+                </div>
+                <div class="form-item">
+                    <label for="patient-last-name">Last Name</label>
+                    <input type="text" id="patient-last-name" required>
+                </div>
+                <div class="form-item">
+                    <label for="patient-email">Email</label>
+                    <input type="email" id="patient-email" required>
+                </div>
+                <div class="form-item">
+                    <label for="patient-phone">Phone</label>
+                    <input type="tel" id="patient-phone" required>
+                </div>
+                <div class="form-item">
+                    <label for="patient-dob">Date of Birth</label>
+                    <input type="date" id="patient-dob" required>
+                </div>
+                <div class="form-item">
+                    <label for="patient-gender">Gender</label>
+                    <select id="patient-gender" required>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="patient-address">Address</label>
+                    <input type="text" id="patient-address" required>
+                </div>
+                <button type="submit" class="button">Register Patient</button>
+            </form>
+        </div>
+
+        <div class="form-container" style="margin-top: 40px;">
+            <h2>Register Doctor</h2>
+            <form id="doctorForm" onsubmit="registerDoctor(event)">
+                <div class="form-item">
+                    <label for="doctor-first-name">First Name</label>
+                    <input type="text" id="doctor-first-name" required>
+                </div>
+                <div class="form-item">
+                    <label for="doctor-last-name">Last Name</label>
+                    <input type="text" id="doctor-last-name" required>
+                </div>
+                <div class="form-item">
+                    <label for="doctor-specialization">Specialization</label>
+                    <input type="text" id="doctor-specialization" required>
+                </div>
+                <div class="form-item">
+                    <label for="doctor-email">Email</label>
+                    <input type="email" id="doctor-email" required>
+                </div>
+                <div class="form-item">
+                    <label for="doctor-phone">Phone</label>
+                    <input type="tel" id="doctor-phone" required>
+                </div>
+                <div class="form-item">
+                    <label for="doctor-schedule">Schedule</label>
+                    <input type="text" id="doctor-schedule" placeholder="e.g. Mon-Fri: 9am - 5pm">
+                </div>
+                <button type="submit" class="button">Register Doctor</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Telemedicine Service. All rights reserved.</p>
+        <p>Contact: support@telemedicine.com | Phone: (123) 456-7890</p>
+    </footer>
+
+    <script>
+        function registerPatient(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const firstName = document.getElementById('patient-first-name').value;
+            const lastName = document.getElementById('patient-last-name').value;
+            const email = document.getElementById('patient-email').value;
+            const phone = document.getElementById('patient-phone').value;
+            const dob = document.getElementById('patient-dob').value;
+            const gender = document.getElementById('patient-gender').value;
+            const address = document.getElementById('patient-address').value;
+
+            // You can make a request to your server to register the patient
+            console.log("Registering Patient:", { firstName, lastName, email, phone, dob, gender });
+
+            // Reset form after submission
+            document.getElementById('patientForm').reset();
+        }
+
+        function registerDoctor(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const firstName = document.getElementById('doctor-first-name').value;
+            const lastName = document.getElementById('doctor-last-name').value;
+            const specialization = document.getElementById('doctor-specialization').value;
+            const email = document.getElementById('doctor-email').value;
+            const phone = document.getElementById('doctor-phone').value;
+            const schedule = document.getElementById('doctor-schedule').value;
+
+            // You can make a request to your server to register the doctor
+            console.log("Registering Doctor:", { firstName, lastName, specialization, email, phone, schedule });
+
+            // Reset form after submission
+            document.getElementById('doctorForm').reset();
+        }
+    </script>
+</body>
+</html>

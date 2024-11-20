@@ -35,6 +35,80 @@ const create = async (adminData) => {
     }
 };
 
+// Register a patient
+const createPatient = async (patientData) => {    
+    try {
+        // Destructure incoming patient data
+        const { first_name, last_name, email, phone, date_of_birth, gender, address } = patientData;
+
+        // Basic validation (or use a validation library like Joi)
+        if (!first_name || !last_name || !email || !phone || !date_of_birth || !gender || !address) {
+            throw new Error('All fields are required for patient registration.');
+        }
+
+        // Check for duplicates (optional, if required by your app logic)
+        const [existingPatient] = await db.query(
+            'SELECT * FROM patients WHERE email = ? OR phone = ?',
+            [email, phone]
+        );
+        if (existingPatient.length > 0) {
+            throw new Error('A patient with the same email or phone already exists.');
+        }
+
+        // Insert the new patient into the database
+        const [result] = await db.query(
+            'INSERT INTO patients (first_name, last_name, email, phone, date_of_birth, gender, address) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [first_name, last_name, email, phone, date_of_birth, gender, address]
+        );
+
+        // Ensure the insert operation was successful
+        if (!result || typeof result.insertId === 'undefined') {
+            throw new Error('Failed to register patient. No ID was returned from the database.');
+        }
+
+        // Construct the new patient object
+        const newPatient = {
+            patient_id: result.insertId,
+            first_name,
+            last_name,
+            email,
+            phone,
+            date_of_birth,
+            gender,
+            address,
+        };
+
+        console.log('Patient registered successfully:', newPatient); // Log for debugging
+        return newPatient; // Return the new patient details
+    } catch (error) {
+        console.error('Error registering patient:', error.message); // Log errors
+        throw new Error('An error occurred during patient registration.'); // Generic error for external usage
+    }
+};
+
+
+// Register a doctor
+const createDoctor = async (doctorData) => {    
+    try {
+        const { first_name, last_name, specialization, email, phone, schedule } = doctorData; // Corrected to use first_name and last_name
+        const [result] = await db.query('INSERT INTO doctors (first_name, last_name, specialization, email, phone, schedule) VALUES (?, ?, ?, ?, ?, ?)', 
+                                        [first_name, last_name, specialization, email, phone, schedule]);
+
+        console.log("Database Insert Result:", result); // Log the full result of the insert query
+        if (!result || typeof result.insertId === 'undefined') {
+            throw new Error('Insert operation failed. No ID returned.');
+        }
+
+        const newDoctor = { doctor_id: result.insertId, first_name, last_name, specialization, email, phone, schedule }; // New doctor object
+        console.log("Doctor registered successfully:", newDoctor); // Log successful registration details
+
+        return newDoctor; // Return the newly created doctor object with the ID
+    } catch (error) {
+        console.error('Error creating doctor:', error);
+        throw new Error('Database error');
+    }
+};
+
 // Admin - Get All Doctors (with optional search/filtering)
 const getAllDoctors = async ({ search, filterBySpecialization }) => {
     try {
@@ -42,8 +116,8 @@ const getAllDoctors = async ({ search, filterBySpecialization }) => {
         let params = [];
 
         if (search) {
-            query += ' AND (name LIKE ? OR specialization LIKE ?)';
-            params.push(`%${search}%`, `%${search}%`);
+            query += ' AND (first_name LIKE ? OR last_name LIKE ? OR specialization LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
         }
 
         if (filterBySpecialization) {
@@ -111,6 +185,8 @@ const getAllAppointments = async ({ search, filterByStatus }) => {
 module.exports = {
     findByUsername,
     create,
+    createPatient,
+    createDoctor,
     getAllDoctors,
     getAllPatients,
     getAllAppointments

@@ -34,6 +34,9 @@ const login = async (req, res) => {
         if (!username || !password) {
             return res.status(400).json({ success: false, message: 'Username and password are required!' });
         }
+        
+        // Log the login request details
+        console.log('Login request received:', { username, password });
 
         // Fetch the admin based on the username
         const admin = await Admin.findByUsername(username);
@@ -58,6 +61,9 @@ const login = async (req, res) => {
             username: admin.username,
             role: admin.role
         };
+
+        // Log the session data after setting it
+        console.log('Session data after login:', req.session.adminData);
 
         // Return success response and include the role
         res.status(200).json({ 
@@ -84,6 +90,142 @@ const logout = (req, res) => {
         res.status(200).json({ message: 'Logged out successfully!' });
     });
 };
+
+
+// Regsiter patient
+
+// Admin - Register Patient
+
+ // Your DB connection setup
+
+
+ 
+ // Register a patient
+ 
+
+// Register a patient
+const addPatient = async (req, res) => {
+    try {
+        const { first_name, last_name, email, phone, date_of_birth, gender, address, password } = req.body;
+
+        // Validate input
+        if (!first_name || !last_name || !email || !phone || !date_of_birth || !gender || !address || !password) {
+            return res.status(400).json({ message: 'All fields are required!' });
+        }
+
+        // Hash the password
+        const password_hash = await bcrypt.hash(password, saltRounds);
+
+        // Insert patient data into the database
+        const [result] = await db.query(
+            'INSERT INTO patients (first_name, last_name, email, phone, date_of_birth, gender, address, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [first_name, last_name, email, phone, date_of_birth, gender, address, password_hash]
+        );
+
+        // Check if the insert was successful
+        if (!result || typeof result.insertId === 'undefined') {
+            throw new Error('Insert operation failed. No ID returned.');
+        }
+
+        // Create the new patient object
+        const newPatient = {
+            patient_id: result.insertId,
+            first_name,
+            last_name,
+            email,
+            phone,
+            date_of_birth,
+            gender,
+            address,
+        };
+
+        console.log('Patient registered successfully:', newPatient);
+
+        // Return success response
+        res.status(201).json({ message: 'Patient registered successfully!', patient: newPatient });
+    } catch (error) {
+        console.error('Error registering patient:', error);
+        res.status(500).json({ message: 'Error registering patient.', error: error.message });
+    }
+};
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Admin - Register Doctor
+const addDoctor = async (req, res) => {
+    const { first_name, last_name, specialization, email, phone, schedule } = req.body;
+    try {
+        // Validate input
+        if (!first_name || !last_name || !specialization || !email||!phone || !schedule) {
+            return res.status(400).json({ message: 'All fields are required!' });
+        }
+
+        // Create new doctor object
+        const newDoctor = { first_name, last_name, specialization,email, phone, schedule };
+        const savedDoctor = await Admin.createDoctor(newDoctor); // Assuming createDoctor method is defined in adminModel
+
+        console.log("Doctor registered successfully:", savedDoctor);
+        res.status(201).json({ message: 'Doctor registered successfully!', doctor: savedDoctor });
+    } catch (error) {
+        console.error("Error registering doctor:", error);
+        res.status(500).json({ message: 'Error registering doctor.', error: error.message });
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// regsiters a new doctor
+
+
+
+
+
+
+
 
 
 // Admin - Get All Doctors
@@ -167,6 +309,8 @@ module.exports = {
     register, 
     login, 
     logout, 
+    addPatient, 
+    addDoctor, 
     getDoctors, 
     getPatients, 
     getDashboard, 

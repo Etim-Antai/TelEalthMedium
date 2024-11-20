@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Landing Page</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #5cb85c;
+            color: white;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .stat-item {
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .button {
+            margin-top: 10px;
+            display: block;
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #4cae4c;
+        }
+
+        /* Table Styles */
+        table {
+            width: 80%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #5cb85c;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        #patient-list, #doctor-list, #appointment-list {
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Admin Dashboard</h1>
+</header>
+
+<div class="stats" id="stats-container">
+    <div class="stat-item">
+        <h3>Patients</h3>
+        <p id="patient-count">Loading...</p>
+        <a href="javascript:void(0);" class="button" onclick="viewPatients()">View All Patients</a>
+    </div>
+    <div class="stat-item">
+        <h3>Doctors</h3>
+        <p id="doctor-count">Loading...</p>
+        <a href="javascript:void(0);" class="button" onclick="viewDoctors()">View All Doctors</a>
+    </div>
+    <div class="stat-item">
+        <h3>Appointments</h3>
+        <p id="appointment-count">Loading...</p>
+        <a href="javascript:void(0);" class="button" onclick="viewAppointments()">View All Appointments</a>
+    </div>
+</div>
+
+<!-- Patient List Table -->
+<h2>Patients List</h2>
+<table id="patient-list">
+    <thead>
+        <tr>
+            <th>Patient ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Date of Birth</th>
+            <th>Gender</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody id="patients-data">
+        <!-- Dynamic patient data will be populated here -->
+    </tbody>
+</table>
+
+<!-- Doctor List Table -->
+<h2>Doctors List</h2>
+<table id="doctor-list">
+    <thead>
+        <tr>
+            <th>Doctor ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Specialization</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Schedule</th>
+        </tr>
+    </thead>
+    <tbody id="doctors-data">
+        <!-- Dynamic doctor data will be populated here -->
+    </tbody>
+</table>
+
+<!-- Appointment List Table -->
+<h2>Appointments List</h2>
+<table id="appointment-list">
+    <thead>
+        <tr>
+            <th>Appointment ID</th>
+            <th>Patient ID</th>
+            <th>Doctor ID</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="appointments-data">
+        <!-- Dynamic appointment data will be populated here -->
+    </tbody>
+</table>
+
+<script>
+// Fetch dashboard data from the server
+async function loadDashboard() {
+    try {
+        const response = await fetch('http://localhost:9900/admin/dashboard');
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const data = await response.json();
+        console.log('Dashboard data:', data);
+
+        if (data.success) {
+            document.getElementById('patient-count').innerText = data.data.patientsCount;
+            document.getElementById('doctor-count').innerText = data.data.doctorsCount;
+            document.getElementById('appointment-count').innerText = data.data.appointmentsCount;
+
+            // Store data for later usage
+            window.patientsData = data.data.patients;
+            window.doctorsData = data.data.doctors;
+            window.appointmentsData = data.data.appointments;
+        } else {
+            console.error('Failed to load dashboard data:', data.message);
+        }
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+    }
+}
+
+// Functions to view lists
+function viewPatients() {
+    const patientsData = window.patientsData;
+
+    const patientsTableBody = document.getElementById('patients-data');
+    patientsTableBody.innerHTML = ''; // Clear previous data
+
+    patientsData.forEach(patient => {
+        const row = patientsTableBody.insertRow();
+        row.insertCell(0).innerText = patient.patient_id;
+        row.insertCell(1).innerText = patient.first_name;
+        row.insertCell(2).innerText = patient.last_name;
+        row.insertCell(3).innerText = patient.email;
+        row.insertCell(4).innerText = patient.phone;
+        row.insertCell(5).innerText = patient.date_of_birth;
+        row.insertCell(6).innerText = patient.gender;
+        row.insertCell(7).innerText = patient.address;
+    });
+
+    document.getElementById('patient-list').style.display = 'table';
+    document.getElementById('doctor-list').style.display = 'none';
+    document.getElementById('appointment-list').style.display = 'none';
+}
+
+function viewDoctors() {
+    const doctorsData = window.doctorsData;
+
+    const doctorsTableBody = document.getElementById('doctors-data');
+    doctorsTableBody.innerHTML = ''; // Clear previous data
+
+    doctorsData.forEach(doctor => {
+        const row = doctorsTableBody.insertRow();
+        row.insertCell(0).innerText = doctor.doctor_id;
+        row.insertCell(1).innerText = doctor.first_name;
+        row.insertCell(2).innerText = doctor.last_name;
+        row.insertCell(3).innerText = doctor.specialization;
+        row.insertCell(4).innerText = doctor.email;
+        row.insertCell(5).innerText = doctor.phone;
+        row.insertCell(6).innerText = doctor.schedule;
+    });
+
+    document.getElementById('doctor-list').style.display = 'table';
+    document.getElementById('patient-list').style.display = 'none';
+    document.getElementById('appointment-list').style.display = 'none';
+}
+
+function viewAppointments() {
+    const appointmentsData = window.appointmentsData;
+
+    const appointmentsTableBody = document.getElementById('appointments-data');
+    appointmentsTableBody.innerHTML = ''; // Clear previous data
+
+    appointmentsData.forEach(appointment => {
+        const row = appointmentsTableBody.insertRow();
+        row.insertCell(0).innerText = appointment.appointment_id;
+        row.insertCell(1).innerText = appointment.patient_id;
+        row.insertCell(2).innerText = appointment.doctor_id;
+        row.insertCell(3).innerText = appointment.appointment_date;
+        row.insertCell(4).innerText = appointment.appointment_time;
+        row.insertCell(5).innerText = appointment.status;
+    });
+
+    document.getElementById('appointment-list').style.display = 'table';
+    document.getElementById('patient-list').style.display = 'none';
+    document.getElementById('doctor-list').style.display = 'none';
+}
+
+// Load the dashboard data when the page is loaded
+document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+
+</body>
+</html>
