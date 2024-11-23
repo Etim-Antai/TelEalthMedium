@@ -12,7 +12,7 @@ const register = async (req, res) => {
             return res.status(400).json({ message: 'Username is already registered.' });
         }
 
-        // Hash password and create new admin
+        // Hash password and create new admincls
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const newAdmin = { username, password_hash: hashedPassword, role };
         const savedAdmin = await Admin.create(newAdmin);
@@ -92,12 +92,6 @@ const logout = (req, res) => {
 };
 
 
-// Regsiter patient
-
-// Admin - Register Patient
-
- // Your DB connection setup
-
 
  
  // Register a patient
@@ -150,18 +144,6 @@ const addPatient = async (req, res) => {
 };
 
 
- 
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -185,48 +167,6 @@ const addDoctor = async (req, res) => {
         res.status(500).json({ message: 'Error registering doctor.', error: error.message });
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// regsiters a new doctor
-
-
-
-
-
-
-
-
 
 // Admin - Get All Doctors
 const getDoctors = async (req, res) => {

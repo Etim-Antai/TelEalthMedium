@@ -1,22 +1,33 @@
+
 const express = require('express');
 const router = express.Router();
-const patientController = require('../controllers/patientController'); // Import patient controller
+const patientController = require('../controllers/patientController');
+
+// Define routes using the methods from patientController
+router.post('/register', patientController.register);
+// url: http://localhost:9900/patients/register
 
 
 
-// Route to register a new patient (POST request)
-router.post('/register', patientController.registerPatient);
+router.post('/login', patientController.login);
+// url: http://localhost:9900/patients/login
 
-// Route to log in an existing patient (POST request)
-router.post('/login', patientController.loginPatient);
 
-// Route to get the profile of a logged-in patient
-router.get('/profile/:patient_id', patientController.getPatientProfile);
+router.get('/profile', patientController.getProfile);
+// url: http://localhost:9900/patients/profile
 
-// Route to update the profile of a logged-in patient
-router.put('/profile/:patient_id', patientController.updatePatientProfile);
 
-// Route to delete a patient's account
-router.delete('/delete/:patient_id', patientController.deletePatientAccount);
 
+router.put('/update', patientController.updateProfile);
+// url: http://localhost:9900/patients/update
+
+
+router.post('/logout', patientController.logout);
+// url: http://localhost:9900/patients/logout
+router.delete('/delete/:patient_id', patientController.deleteAccount);
+// url: http://localhost:9900/patients/delete/:patient_id
 module.exports = router;
+
+
+
+

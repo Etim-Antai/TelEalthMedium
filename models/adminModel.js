@@ -1,4 +1,4 @@
-const db = require('../config/db'); // Assuming you are using a custom DB connection setup
+const db = require('../config/db'); 
 
 // Admin - Find Admin by Username
 const findByUsername = async (username) => {
@@ -34,6 +34,11 @@ const create = async (adminData) => {
         throw new Error('Database error');
     }
 };
+
+
+
+
+
 
 // Register a patient
 const createPatient = async (patientData) => {    
@@ -132,6 +137,13 @@ const getAllDoctors = async ({ search, filterBySpecialization }) => {
         throw new Error('Database error');
     }
 };
+
+
+
+
+
+
+
 
 // Admin - Get All Patients (with optional search/filtering)
 const getAllPatients = async ({ search, filterByGender }) => {

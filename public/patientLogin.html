@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="submit"]:hover {
+            background-color: #4cae4c;
+        }
+        #feedback {
+            margin-top: 10px;
+            color: red;
+            text-align: center;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Patient Login</h1>
+        <form id="patientLoginForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter Email" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter Password" required>
+            
+            <input type="submit" value="Login" id="submitbtn">
+        </form>
+        <div id="feedback" aria-live="polite"></div> <!-- Feedback message -->
+    </div>
+
+    <script>
+        document.getElementById("patientLoginForm").addEventListener("submit", async function(event) {
+            event.preventDefault(); // Prevent form from submitting
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const submitBtn = document.getElementById("submitbtn");
+            const feedback = document.getElementById("feedback");
+
+            // Reset feedback before making the request
+            feedback.textContent = '';
+            feedback.className = '';
+
+            submitBtn.disabled = true; // Disable the button to prevent multiple clicks
+            feedback.textContent = "Logging in..."; // Show loading message
+
+            try {
+                console.log("Sending login request with:", { email });
+
+                const response = await fetch("http://localhost:9900/patients/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Response data:", data);
+
+                if (data.success) { 
+                    // Successful login; save the relevant patient details
+                    localStorage.setItem('patientId', data.patient_id);
+                    localStorage.setItem('patientFirstName', data.patientData.first_name);
+                    localStorage.setItem('patientLastName', data.patientData.last_name);
+                    localStorage.setItem('email', data.patientData.email);
+                    localStorage.setItem('phoneNumber', data.patientData.phone);
+                    localStorage.setItem('dateOfBirth', data.patientData.date_of_birth);
+                    localStorage.setItem('gender', data.patientData.gender);
+                    localStorage.setItem('address', data.patientData.address);
+                    localStorage.setItem('patientLoggedIn', true);
+                    
+                    feedback.textContent = "Login successful. Redirecting...";
+                    feedback.className = 'success';
+
+                    // Load appointments and statistics after logging in, before redirecting
+                    await loadAppointments(data.patient_id); // Fetch appointments
+                    await loadAppointmentStatistics(data.patient_id); // Fetch statistics
+
+                    // Redirect to the patient dashboard
+                    window.location.href = "pdb.html"; // Redirect to the patient dashboard
+                } else {
+                    feedback.textContent = "Login failed: " + (data.message || "Invalid credentials");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                feedback.textContent = "An error occurred during login: " + error.message;
+            } finally {
+                submitBtn.disabled = false; // Re-enable the button after fetch is complete
+            }
+        });
+
+        async function loadAppointments(patientId) {
+            // Fetch appointments logic remains unchanged
+            try {
+                const response = await fetch(`http://localhost:9900/appointments/patient/${patientId}`, { 
+                    method: 'GET',
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                        "Accept": "application/json"
+                    },
+                    credentials: 'include'
+                });
+                if (!response.ok) throw new Error('Failed to load appointments');
+
+                const data = await response.json();
+                console.log("Appointments data:", data);
+            } catch (error) {
+                console.error("Failed to retrieve appointments:", error.message);
+            }
+        }
+
+        async function loadAppointmentStatistics(patientId) {
+            // Fetch appointment statistics logic remains unchanged
+            try {
+                const response = await fetch(`http://localhost:9900/appointments/statistics?patient_id=${patientId}`, { 
+                    method: 'GET',
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem('token')}`,
+                        "Accept": "application/json"
+                    },
+                    credentials: 'include'
+                });
+                if (!response.ok) throw new Error('Failed to load appointment statistics');
+
+                const stats = await response.json();
+                console.log("Appointment statistics data:", stats);
+            } catch (error) {
+                console.error("Failed to retrieve appointment statistics:", error.message);
+            }
+        }
+    </script>
+</body>
+</html>

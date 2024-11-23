@@ -43,7 +43,7 @@ const Appointment = {
   },
 
   // Update the status of an appointment (e.g., cancel, complete)
-updateStatus: (appointment_id, status) => {
+  updateStatus: (appointment_id, status) => {
     return new Promise((resolve, reject) => {
         const query = `UPDATE appointments SET status = ? WHERE appointment_id = ?`;
 
@@ -55,8 +55,22 @@ updateStatus: (appointment_id, status) => {
             resolve(result);
         });
     });
-},
+  },
 
+  // Reschedule an appointment
+  reschedule: (appointment_id, appointment_date, appointment_time) => {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE appointments SET appointment_date = ?, appointment_time = ? WHERE appointment_id = ?`;
+
+        db.query(query, [appointment_date, appointment_time, appointment_id], (err, result) => {
+            if (err) {
+                console.error("Error rescheduling appointment:", err);
+                return reject(err);
+            }
+            resolve(result);
+        });
+    });
+  },
 
   // Delete an appointment
   delete: (appointment_id, callback) => {

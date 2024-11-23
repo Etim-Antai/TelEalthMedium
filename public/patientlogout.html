@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #5cb85c;
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 15px 0;
+        }
+        .button {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button:hover {
+            background-color: #4cae4c;
+        }
+        .confirmation {
+            display: none; /* Hidden by default */
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>You have been logged out</h1>
+        <p>Thank you for your visit. You can log in again using the button below.</p>
+        
+        <!-- Button to redirect to login -->
+        <a href="http://localhost:9900/patientLogin.html" class="button">Login Again</a>
+
+        <div class="confirmation" id="confirmation">
+            <p>Do you want to log in again?</p>
+            <a href="http://localhost:9900/patientLogin.html" class="button">Click here to log in</a>
+            <button id="no-button" class="button">No</button>
+        </div>
+    </div>
+
+    <script>
+        // Clear session storage
+        sessionStorage.clear();
+
+        // Optional: If you want to prompt for login after logout
+        document.addEventListener('DOMContentLoaded', () => {
+            // Here you could display confirmation if needed
+            // For now, the login again button is sufficient
+        });
+    </script>
+</body>
+</html>

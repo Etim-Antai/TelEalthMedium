@@ -2,10 +2,13 @@
 const Doctor = require('../models/doctorModel');       // Adjust path if needed
 const Appointment = require('../models/appointmentModel');
 const Patient = require('../models/patientModel');
+const bcrypt = require('bcrypt'); // Make sure to install via npm
+const db = require('../config/db');  
+    // Ensure this path is correct based on your structure
 
 // Register a new doctor
 const register = async (req, res) => {
-    const { first_name, last_name, specialization, email, phone, schedule } = req.body;
+    const { first_name, last_name, specialization, email, phone, schedule, password } = req.body;
 
     try {
         // Check for existing doctor by email
@@ -18,7 +21,19 @@ const register = async (req, res) => {
             return res.status(400).json({ message: 'Phone number is already registered.' });
         }
 
-        const newDoctor = { first_name, last_name, specialization, email, phone, schedule };
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10); // 10 salt rounds
+
+        const newDoctor = { 
+            first_name, 
+            last_name, 
+            specialization, 
+            email, 
+            phone, 
+            schedule, 
+            password: hashedPassword // Store the hashed password
+        };
+
         const savedDoctor = await Doctor.createDoctor(newDoctor);
 
         res.status(201).json({ message: 'Doctor registered successfully!', doctor: savedDoctor });
@@ -30,10 +45,16 @@ const register = async (req, res) => {
 
 // Log in a doctor
 const login = async (req, res) => {
-    const { email } = req.body;  // Removed password check
+    const { email, password } = req.body; // Get email and password from request body
     try {
         const doctor = await Doctor.findByEmail(email);
         if (!doctor) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
+        }
+
+        // Compare the provided password with the hashed password
+        const isPasswordValid = await bcrypt.compare(password, doctor.password);
+        if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid credentials.' });
         }
 
@@ -86,7 +107,6 @@ const getProfile = async (req, res) => {
             phone: doctor.phone,
             specialization: doctor.specialization,
             schedule: doctor.schedule
-
         };
 
         res.status(200).json(profileData);
@@ -104,14 +124,15 @@ const updateProfile = async (req, res) => {
     }
 
     try {
+        const { first_name, last_name, specialization, email, phone, schedule } = req.body;
+
         const updatedData = {
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            specialization: req.body.specialization,
-            email: req.body.email,
-            phone: req.body.phone,
-            schedule: req.body.schedule
-            
+            first_name,
+            last_name,
+            specialization,
+            email,
+            phone,
+            schedule
         };
 
         const updateDoctor = await Doctor.updateDoctor(doctorId, updatedData);
@@ -130,7 +151,7 @@ const deleteAccount = async (req, res) => {
     }
 
     try {
-        await Doctor.deleteById(doctorId);
+        await Doctor.deleteDoctor(doctorId); // Adjust to use the delete function
         req.session.destroy((err) => {
             if (err) {
                 console.error("Error deleting account:", err);
@@ -145,7 +166,18 @@ const deleteAccount = async (req, res) => {
     }
 };
 
-// Get doctor dashboard
+// Get all doctors
+const getAllDoctors = async (req, res) => {
+    try {
+        const doctors = await Doctor.getAllDoctor(); // Ensure this method exists in your model
+        res.status(200).json(doctors);
+    } catch (error) {
+        console.error("Error retrieving all doctors:", error);
+        res.status(500).json({ message: 'Error retrieving doctors.', error: error.message });
+    }
+};
+
+// Get doctor dashboard (if needed)
 const getDashboard = async (req, res) => {
     const doctorId = req.session.doctorData?.id;
     if (!doctorId) {
@@ -165,7 +197,7 @@ const getDashboard = async (req, res) => {
             phone: doctorDetails.phone,
             specialization: doctorDetails.specialization,
             appointments: await Appointment.findByDoctorId(doctorId),
-            patients: await Patient.findAll()  // Fetch all patients if needed
+            patients: await Patient.findAll() // Fetch all patients if needed
         };
 
         res.status(200).json(dashboardData);
@@ -175,6 +207,33 @@ const getDashboard = async (req, res) => {
     }
 };
 
+
+
+
+// Set password for existing doctors
+const setPassword = async (req, res) => {
+    const { email, password } = req.body; // Get email and password from body
+
+    try {
+        const doctor = await Doctor.findByEmail(email);
+        if (!doctor) {
+            return res.status(404).json({ message: 'Doctor not found.' });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Update the doctor record with the new password
+        await db.query('UPDATE doctors SET password = ? WHERE email = ?', [hashedPassword, email]);
+
+        res.status(200).json({ message: 'Password set successfully. You can now log in.' });
+    } catch (error) {
+        console.error("Error setting password:", error);
+        res.status(500).json({ message: 'Error setting password.', error: error.message });
+    }
+};
+
+
 // Export all controller functions
 module.exports = { 
     register, 
@@ -183,5 +242,7 @@ module.exports = {
     getProfile, 
     updateProfile, 
     deleteAccount,
-    getDashboard
+    getAllDoctors,
+    getDashboard ,
+    setPassword
 };

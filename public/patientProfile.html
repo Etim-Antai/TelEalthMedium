@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Patient Profile - Telemedicine App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            height: 100vh; /* Full height for layout */
+            flex-direction: column; /* Column layout */
+        }
+        header {
+            background-color: #5cb85c;
+            color: white;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #fff;
+        }
+        h1 {
+            margin: 20px 0;
+        }
+        .container {
+            display: flex;
+            flex: 1; /* Make the container take remaining space */
+            justify-content: center; /* Center content horizontally */
+            align-items: center; /* Center content vertically */
+        }
+        .profile-container {
+            padding: 20px;
+            max-width: 600px;
+            width: 100%; /* Take full width on smaller screens */
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px; /* Margin around the profile */
+        }
+        .profile-info {
+            margin: 15px 0;
+            font-size: 18px;
+        }
+        .button {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            width: 45%; /* Adjust width for buttons */
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+            .button {
+                width: 100%; /* Full width for buttons on smaller screens */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Patient Profile</h1>
+        <nav>
+            <span id="patient-name"></span>
+            <a href="patientlogout.html">Logout</a>
+            <a href="patientlanding.html">Landing Page</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="profile-container">
+            <div id="profile-details" class="profile-info"></div>
+            <div class="button-container">
+                <button class="button" id="dashboard-button">Return to Dashboard</button>
+                <button class="button" id="update-profile-button">Update Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 All Rights Reserved. All rights reserved.</p>
+        <p>Contact Us: support@allrightsreserve.com | Phone: (123) 456-7890</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileDetails = document.getElementById('profile-details');
+
+            fetch('http://localhost:9900/patients/profile', {
+                method: 'GET',
+                credentials: 'include' // Include cookies for session management
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to fetch profile data:", response.statusText);
+                    throw new Error("Failed to fetch profile data.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Populate the profile details
+                profileDetails.innerHTML = `
+                    <p><strong>First Name:</strong> ${data.first_name}</p>
+                    <p><strong>Last Name:</strong> ${data.last_name}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Phone:</strong> ${data.phone}</p>
+                    <p><strong>Date of Birth:</strong> ${data.date_of_birth}</p>
+                    <p><strong>Gender:</strong> ${data.gender}</p>
+                    <p><strong>Address:</strong> ${data.address}</p>
+                `;
+            })
+            .catch(error => {
+                console.error("Error loading profile:", error);
+                profileDetails.innerHTML = `<p>Error loading profile: ${error.message}</p>`;
+            });
+
+            // Redirect to Dashboard on button click
+            document.getElementById('dashboard-button').addEventListener('click', () => {
+                window.location.href = 'pdb.html'; // Assuming this is the dashboard
+            });
+
+            // Redirect to Update Profile on button click
+            document.getElementById('update-profile-button').addEventListener('click', () => {
+                window.location.href = 'editprofile.html'; // Make sure this file exists
+            });
+        });
+    </script>
+</body>
+</html>

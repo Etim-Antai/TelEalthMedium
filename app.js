@@ -1,4 +1,5 @@
 // Required modules
+const cron = require('node-cron'); // For scheduling cron jobs
 const dotenv = require('dotenv').config(); // Load environment variables from .env file
 const express = require('express');
 const session = require('express-session');
@@ -10,6 +11,10 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const app = express();
+
+const appointmentController = require('./controllers/appointmentController');
+
+
 
 // Enable CORS for all routes
 app.use(cors({
@@ -84,6 +89,21 @@ app.get('/debug/db', async (req, res) => {
 app.get('/', (req, res) => {
     res.send('Welcome to the Telemedicine Application');
 });
+
+cron.schedule('* * * * *', () => {
+    appointmentController.markCompletedAppointments();
+
+
+});
+
+app.get('/test/mark-completed', async (req, res) => {
+    await appointmentController.markCompletedAppointments();
+    res.status(200).send('Completed marking function executed');
+});
+
+
+
+
 
 // Route for handling errors
 app.use((req, res, next) => {

@@ -4,12 +4,12 @@ const db = require('../config/db'); // Database connection from config/db
 
 // Function to create a new doctor
 const createDoctor = async (doctorData) => {
-    const { first_name, last_name, specialization, email, phone, schedule } = doctorData;
+    const { first_name, last_name, specialization, email, phone, schedule, password } = doctorData; // Password added
     
     try {
         const result = await db.query(
-            'INSERT INTO Doctors (first_name, last_name, specialization, email, phone, schedule) VALUES (?, ?, ?, ?, ?, ?)',
-            [first_name, last_name, specialization, email, phone, schedule]
+            'INSERT INTO Doctors (first_name, last_name, specialization, email, phone, schedule, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [first_name, last_name, specialization, email, phone, schedule, password] // Include password
         );
         return result;
     } catch (err) {
@@ -19,7 +19,7 @@ const createDoctor = async (doctorData) => {
 };
 
 // Function to get all doctors
-const getAllDoctors = async () => {
+const getAllDoctor = async () => {
     try {
         const [rows] = await db.query('SELECT * FROM Doctors');
         return rows;
@@ -49,9 +49,9 @@ const findByEmail = async (email) => {
     try {
         const [rows] = await db.query('SELECT * FROM Doctors WHERE email = ?', [email]);
         if (rows.length > 0) {
-            return rows[0]; // return the first matching doctor
+            return rows[0]; // Return the first matching doctor
         } else {
-            return null; // return null if no doctor was found
+            return null; // Return null if no doctor was found
         }
     } catch (err) {
         console.error('Error fetching doctor by email:', err.message);
@@ -64,19 +64,15 @@ const findByPhone = async (phone) => {
     try {
         const [rows] = await db.query('SELECT * FROM Doctors WHERE phone = ?', [phone]);
         if (rows.length > 0) {
-            return rows[0]; // return the first matching doctor
+            return rows[0]; // Return the first matching doctor
         } else {
-            return null; // return null if no doctor was found
+            return null; // Return null if no doctor was found
         }
     } catch (err) {
         console.error('Error fetching doctor by phone:', err.message);
         throw err;
     }
 };
-
-
-
-
 
 // Function to update a doctor's details
 const updateDoctor = async (doctorId, updatedData) => {
@@ -111,10 +107,10 @@ const deleteDoctor = async (doctorId) => {
 // Export the functions for use in controllers
 module.exports = {
     createDoctor,
-    getAllDoctors,
+    getAllDoctor,
     getDoctorById,
     findByEmail,
-    findByPhone, // Add this line to export the new function
+    findByPhone,
     updateDoctor,
     deleteDoctor,
 };

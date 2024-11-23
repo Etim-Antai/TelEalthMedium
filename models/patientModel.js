@@ -1,80 +1,102 @@
-const db = require('../config/db'); // Import the database connection
-const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
+const db = require('../config/db'); // Assuming you are using a custom DB connection setup
 
-// Patient Model
-const Patient = {
-  // Create a new patient (registration)
-  create: (first_name, last_name, email, password, phone, date_of_birth, gender, address, callback) => {
-    // Hash the password before storing it
-    bcrypt.hash(password, 10, (err, hashedPassword) => {
-      if (err) {
-        console.error("Error hashing password:", err);
-        return callback(err, null);
-      }
-
-      const query = `INSERT INTO patients (first_name, last_name, email, password_hash, phone, date_of_birth, gender, address) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-
-      db.query(query, [first_name, last_name, email, hashedPassword, phone, date_of_birth, gender, address], (err, result) => {
-        if (err) {
-          console.error("Error creating patient:", err);
-          return callback(err, null);
-        }
-        return callback(null, result);
-      });
-    });
-  },
-
-  // Find a patient by email (for login)
-  findByEmail: (email, callback) => {
-    const query = `SELECT * FROM patients WHERE email = ?`;
-
-    db.query(query, [email], (err, results) => {
-      if (err) {
-        console.error("Error finding patient by email:", err);
-        return callback(err, null);
-      }
-      return callback(null, results[0]); // Returns the first patient with that email
-    });
-  },
-
-  // Update a patient's profile (excluding email and password)
-  updateProfile: (patient_id, first_name, last_name, phone, date_of_birth, gender, address, callback) => {
-    const query = `UPDATE patients SET first_name = ?, last_name = ?, phone = ?, date_of_birth = ?, gender = ?, address = ? 
-                   WHERE patient_id = ?`;
-
-    db.query(query, [first_name, last_name, phone, date_of_birth, gender, address, patient_id], (err, result) => {
-      if (err) {
-        console.error("Error updating patient profile:", err);
-        return callback(err, null);
-      }
-      return callback(null, result);
-    });
-  },
-
-  // Delete a patient account
-  delete: (patient_id, callback) => {
-    const query = `DELETE FROM patients WHERE patient_id = ?`;
-
-    db.query(query, [patient_id], (err, result) => {
-      if (err) {
-        console.error("Error deleting patient account:", err);
-        return callback(err, null);
-      }
-      return callback(null, result);
-    });
-  },
-
-  // Verify password during login
-  verifyPassword: (enteredPassword, storedHash, callback) => {
-    bcrypt.compare(enteredPassword, storedHash, (err, isMatch) => {
-      if (err) {
-        console.error("Error comparing password:", err);
-        return callback(err, null);
-      }
-      return callback(null, isMatch);
-    });
-  }
+// Patient - Find patient by Email
+const findByEmail = async (email) => {
+    try {
+        const [result] = await db.query('SELECT * FROM patients WHERE email = ?', [email]);
+        return result.length > 0 ? result[0] : null; // Return the first result or null if not found
+    } catch (error) {
+        console.error('Error finding patient by email:', error);
+        throw new Error('Database error');
+    }
 };
 
-module.exports = Patient;
+// Patient - Create a new patient (registration)
+const create = async (patientData) => {
+    try {
+        const { first_name, last_name, email, password_hash, phone, date_of_birth, gender, address } = patientData;
+        const [result] = await db.query(
+            'INSERT INTO patients (first_name, last_name, email, password_hash, phone, date_of_birth, gender, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [first_name, last_name, email, password_hash, phone, date_of_birth, gender, address]
+        );
+
+        console.log("Database Insert Result:", result);
+        
+        if (!result || typeof result.insertId === 'undefined') {
+            console.error("Result object:", result); // Log the result for debugging
+            throw new Error('Error creating patient: No insert ID found.');
+        }
+
+        const newPatient = {
+            patient_id: result.insertId,
+            first_name,
+            last_name,
+            email,
+            password_hash,
+            phone,
+            date_of_birth,
+            gender,
+            address
+        };
+        console.log("New patient created successfully. Details:", newPatient);
+        return newPatient;
+
+    } catch (error) {
+        console.error('Error creating patient:', error);
+        throw new Error('Database error');
+    }
+};
+
+// Patient - Find patient by ID
+const findById = async (patient_id) => {
+    try {
+        const [result] = await db.query('SELECT * FROM patients WHERE patient_id = ?', [patient_id]);
+        return result.length > 0 ? result[0] : null; // Return the first result or null if not found
+    } catch (error) {
+        console.error('Error finding patient by ID:', error);
+        throw new Error('Database error');
+    }
+};
+
+// Patient - Update patient profile
+const updateProfile = async (patientId, updateData) => {
+    const { first_name, last_name, phone, date_of_birth, gender, address } = updateData;
+
+    try {
+        const [result] = await db.query(
+            'UPDATE patients SET first_name = ?, last_name = ?, phone = ?, date_of_birth = ?, gender = ?, address = ? WHERE patient_id = ?',
+            [first_name, last_name, phone, date_of_birth, gender, address, patientId]
+        );
+        
+        console.log("Database Update Result:", result);
+        return result.affectedRows > 0 ? result : null; // Return the result or null if no rows affected
+
+    } catch (error) {
+        console.error('Error updating patient profile:', error);
+        throw new Error('Database error');
+    }
+};
+
+// Delete a patient account
+const deletePatient = async (patient_id) => {
+    console.log("Deleting patient account with ID:", patient_id);
+
+    const query = `DELETE FROM patients WHERE patient_id = ?`;
+    const [result] = await db.query(query, [patient_id]);
+
+    if (result.affectedRows > 0) {
+        console.log("Patient account deleted successfully. Patient ID:", patient_id);
+        return result;
+    } else {
+        console.log("No patient found with ID:", patient_id);
+        return null; // No patient found
+    }
+};
+
+module.exports = {
+    findByEmail,
+    create,
+    findById,
+    updateProfile,
+    deletePatient
+};
