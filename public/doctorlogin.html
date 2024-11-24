@@ -102,6 +102,10 @@
                 }
 
                 const data = await response.json();
+                if (!data.doctorData) {
+                    throw new Error('Invalid login response structure.');
+                }
+
                 // Store doctor info in localStorage
                 localStorage.setItem('doctorLoggedIn', true);
                 localStorage.setItem('doctorFirstName', data.doctorData.first_name);
@@ -111,6 +115,14 @@
                 localStorage.setItem('doctorSpecialization', data.doctorData.specialization);
                 localStorage.setItem('doctorPhone', data.doctorData.phone);
                 localStorage.setItem('doctorSchedule', data.doctorData.schedule);
+
+                // Log stored values for debugging
+                console.log("Doctor Info Stored:", {
+                    id: data.doctorData.id,
+                    firstName: data.doctorData.first_name,
+                    lastName: data.doctorData.last_name,
+                    email: data.doctorData.email
+                });
 
                 // Redirect to the Doctor Dashboard
                 window.location.href = 'ddb.html';

@@ -104,6 +104,36 @@ const deleteDoctor = async (doctorId) => {
     }
 };
 
+// Get all patients in database
+const getAllPatient = async () => {
+    try {
+        const [rows] = await db.query('SELECT * FROM Patients');
+        return rows;
+    } catch (err) {
+        console.error('Error fetching patients:', err.message);
+        throw err;
+    }
+};
+
+// Get a specific patient by ID
+const getPatientById = async (patientId) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM Patients WHERE patient_id = ?', [patientId]);
+        if (rows.length > 0) {
+            return rows[0];
+        } else {
+            return null;
+        }
+    } catch (err) {
+        console.error('Error fetching patient by ID:', err.message);
+        throw err;
+    }
+};
+
+
+
+
+
 // Export the functions for use in controllers
 module.exports = {
     createDoctor,
@@ -113,4 +143,6 @@ module.exports = {
     findByPhone,
     updateDoctor,
     deleteDoctor,
+    getAllPatient,
+    getPatientById
 };

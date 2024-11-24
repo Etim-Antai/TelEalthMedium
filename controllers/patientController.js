@@ -149,12 +149,61 @@ const deleteAccount = async (req, res) => {
     }
 };
 
+
+
+
+
+
+// Function to get appointment status distribution for the patient
+const getAppointmentStatusDistribution = async (req, res) => {
+    const patientId = req.session.patientId; // Get patient ID from request parameters
+
+    if (!patientId) {
+        return res.status(400).json({ message: 'Patient ID is required.' });
+    }
+
+    try {
+        const [results] = await db.execute(`
+            SELECT status, COUNT(*) AS count
+            FROM appointments
+            WHERE patient_id = ?
+            GROUP BY status
+        `, [patientId]);
+
+        // Transform the results into an object to return
+        const statusDistribution = {};
+        results.forEach(row => {
+            statusDistribution[row.status] = row.count;
+        });
+
+        res.status(200).json(statusDistribution);
+    } catch (error) {
+        console.error("Error retrieving appointment status distribution:", error);
+        res.status(500).json({ message: 'Error retrieving appointment status distribution', error: error.message });
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = {
     register,
     login,
     logout,
     getProfile,
     updateProfile,
-    deleteAccount
+    deleteAccount,
+    getAppointmentStatusDistribution
 };
 

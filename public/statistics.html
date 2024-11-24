@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #fff;
+        }
+        .container {
+            flex: 1; /* Make the container take remaining space */
+            display: flex;
+            justify-content: center; /* Center content */
+            align-items: center;
+            padding: 20px;
+        }
+        .main-content {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px;
+            width: 100%; /* Full width to fit containers */
+        }
+        footer {
+            background-color: #5cb85c;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        footer p {
+            margin: 5px 0;
+        }
+        #addressDistributionChart {
+            height: 400px; /* Set height for the chart */
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Statistics Page</h1>
+        <nav>
+            <a href="doctorProfile.html">View Profile</a>
+            <a href="ddb.html">Dashboard</a>
+            <a href="doctorlogout.html">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <h2>Monthly Appointment Statistics</h2>
+            <canvas id="monthlyAppointmentsChart"></canvas>
+
+            <h2>Appointments Count per Patient</h2>
+            <canvas id="appointmentsPerPatientChart"></canvas>
+
+            <h2>Patient Age Distribution</h2>
+            <canvas id="ageDistributionChart"></canvas>
+
+            <h2>Patient Address Distribution</h2>
+            <canvas id="addressDistributionChart"></canvas> <!-- Container for Address Distribution Chart -->
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 All Rights Reserved.</p>
+        <p>Contact Us: support@allrightsreserve.com | Phone: (123) 456-7890</p>
+    </footer>
+
+    <script>
+        // Fetch monthly statistics (existing function)
+        async function loadMonthlyStats() {
+            try {
+                const response = await fetch('http://localhost:9900/doctors/statistics', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load statistics');
+
+                const data = await response.json();
+                console.log("Monthly Stats Data:", data); // Log data for debugging
+                if (data.monthlyStats && data.monthlyStats.labels.length > 0) {
+                    loadMonthlyAppointmentsChart(data.monthlyStats);
+                }
+            } catch (error) {
+                console.error("Error loading monthly statistics:", error);
+                alert("Error loading monthly statistics: " + error.message);
+            }
+        }
+
+        // Load appointments count per patient statistics (existing function)
+        async function loadAppointmentsPerPatient() {
+            try {
+                const response = await fetch('http://localhost:9900/appointments/byPatient', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load appointments per patient');
+
+                const data = await response.json();
+                console.log("Appointments per Patient Data:", data); // Log data for debugging
+                loadAppointmentsPerPatientChart(data);
+            } catch (error) {
+                console.error("Error loading appointments per patient:", error);
+                alert("Error loading appointments per patient: " + error.message);
+            }
+        }
+
+        // Load monthly appointments chart (existing function)
+        function loadMonthlyAppointmentsChart(data) {
+            const ctx = document.getElementById('monthlyAppointmentsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line', // Line chart for monthly appointments
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Appointments per Month',
+                        data: data.counts,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load appointments per patient chart (existing function)
+        function loadAppointmentsPerPatientChart(data) {
+            const ctx = document.getElementById('appointmentsPerPatientChart').getContext('2d');
+            const labels = data.map(entry => `${entry.patient_first_name} ${entry.patient_last_name}`);
+            const counts = data.map(entry => entry.appointment_count);
+
+            new Chart(ctx, {
+                type: 'bar', // Bar chart for appointments per patient
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Appointments Count per Patient',
+                        data: counts,
+                        backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load patient age distribution statistics (existing function)
+        async function loadAgeDistribution() {
+            try {
+                const response = await fetch('http://localhost:9900/doctors/age-distribution', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load age distribution');
+
+                const data = await response.json(); // Assuming data has age distribution
+                console.log("Age Distribution Data:", data); // Log data for debugging
+                loadAgeDistributionChart(data);
+            } catch (error) {
+                console.error("Error loading age distribution:", error);
+                alert("Error loading age distribution: " + error.message);
+            }
+        }
+
+        // Load age distribution chart (existing function)
+        function loadAgeDistributionChart(data) {
+            const ctx = document.getElementById('ageDistributionChart').getContext('2d');
+            const labels = Object.keys(data);
+            const counts = Object.values(data);
+
+            new Chart(ctx, {
+                type: 'bar', // Bar chart for age distribution
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Patients',
+                        data: counts,
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load patient address distribution statistics
+        async function loadAddressDistribution() {
+            try {
+                const response = await fetch('http://localhost:9900/doctors/address-distribution', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load address distribution');
+
+                const data = await response.json(); // Assuming data has address and count
+                console.log("Address Distribution Data:", data); // Log data for debugging
+                loadAddressDistributionChart(data);
+            } catch (error) {
+                console.error("Error loading address distribution:", error);
+                alert("Error loading address distribution: " + error.message);
+            }
+        }
+
+        // Load address distribution chart
+        function loadAddressDistributionChart(data) {
+            const ctx = document.getElementById('addressDistributionChart').getContext('2d');
+            const labels = data.map(item => item.address); // Assuming data has an address field
+            const counts = data.map(item => item.count); // Assuming data has a count field
+
+            new Chart(ctx, {
+                type: 'bar', // Bar chart for address distribution
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Patients',
+                        data: counts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load all data when the page is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMonthlyStats();
+            loadAppointmentsPerPatient();
+            loadAgeDistribution();
+            loadAddressDistribution(); // Load address distribution chart
+        });
+    </script>
+</body>
+</html>

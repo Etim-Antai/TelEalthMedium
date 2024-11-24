@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Doctor Profile</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your main CSS file -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 48%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            color: #fff;
+        }
+        .button-save {
+            background-color: #3498db; /* Blue for save */
+        }
+        .button-save:hover {
+            background-color: #2980b9;
+        }
+        .button-cancel {
+            background-color: #e74c3c; /* Red for cancel */
+        }
+        .button-cancel:hover {
+            background-color: #c0392b;
+        }
+        .return-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .return-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Doctor Profile</h1>
+        
+        <form id="editProfileForm">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" required>
+
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" required>
+
+            <label for="specialization">Specialization</label>
+            <input type="text" id="specialization" name="specialization" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <label for="schedule">Schedule</label>
+            <textarea id="schedule" name="schedule" required></textarea>
+
+            <div class="form-buttons">
+                <button type="button" class="button button-save" onclick="saveProfile()">Save Changes</button>
+                <button type="button" class="button button-cancel" onclick="cancelEdit()">Cancel</button>
+            </div>
+        </form>
+
+        <a href="doctorProfile.html" class="return-link">Return to Profile</a>
+    </div>
+
+    <script>
+        // Fetch the current doctor profile data and populate the form
+        async function fetchDoctorProfile() {
+            try {
+                const response = await fetch('http://localhost:9900/doctors/profile', {
+                    method: 'GET',
+                    credentials: 'include' // Include credentials if your server requires it
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch doctor profile');
+                }
+
+                const data = await response.json();
+
+                // Populate the form fields with the fetched data
+                document.getElementById('first_name').value = data.first_name;
+                document.getElementById('last_name').value = data.last_name;
+                document.getElementById('specialization').value = data.specialization;
+                document.getElementById('email').value = data.email;
+                document.getElementById('phone').value = data.phone;
+                document.getElementById('schedule').value = data.schedule;
+            } catch (error) {
+                console.error('Error fetching doctor profile:', error);
+                alert('Error fetching doctor profile. Please try again later.');
+            }
+        }
+
+        // Save profile changes
+        async function saveProfile() {
+            const formData = {
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                specialization: document.getElementById('specialization').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                schedule: document.getElementById('schedule').value
+            };
+
+            try {
+                const response = await fetch('http://localhost:9900/doctors/profile', {
+                    method: 'PUT', // Assuming PUT method for updating the profile
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update doctor profile');
+                }
+
+                alert('Profile updated successfully!');
+                window.location.href = 'doctorProfile.html'; // Redirect to doctor profile
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                alert('Error saving profile. Please try again later.');
+            }
+        }
+
+        // Cancel the edit and return to the profile page
+        function cancelEdit() {
+            window.location.href = 'doctorProfile.html';
+        }
+
+        // Fetch the current profile data when the page loads
+        window.onload = fetchDoctorProfile;
+    </script>
+</body>
+</html>

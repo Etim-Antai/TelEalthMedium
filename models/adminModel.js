@@ -35,6 +35,44 @@ const create = async (adminData) => {
     }
 };
 
+// updateAmin - Update an existing Admin
+const updateAmin = async (adminData) => {
+    try {
+        const { admin_id, username, password_hash, role } = adminData;
+        const [result] = await db.query('UPDATE admin SET username = ?, password_hash = ?, role = ? WHERE admin_id = ?',
+                                          [username, password_hash, role, admin_id]);
+        console.log("Database Update Result:", result); // Log the full result of the update query
+        if (result.affectedRows === 0) {
+            throw new Error('Update operation failed. No rows affected.');
+        }
+        const updatedAdmin = { admin_id, username, role }; // Updated admin object
+        console.log('Admin updated successfully:', updatedAdmin); // Log successful update details
+        return updatedAdmin; // Return the updated admin object
+    } catch (error) {
+        console.error('Error updating admin:', error);
+        throw new Error('Database error');
+    }
+};
+
+
+
+// delete - Delete an existing Admin
+const deleteAdmin = async (admin_id) => {
+    try {
+        const [result] = await db.query('DELETE FROM admin WHERE admin_id = ?', [admin_id]);
+        if (result.affectedRows === 0) {
+            throw new Error('Delete operation failed. No rows affected.');
+        }
+        console.log('Admin deleted successfully:', admin_id); // Log successful deletion details
+    } catch (error) {
+        console.error('Error deleting admin:', error);
+        throw new Error('Database error');
+    }
+};
+
+
+
+
 
 
 
@@ -201,5 +239,8 @@ module.exports = {
     createDoctor,
     getAllDoctors,
     getAllPatients,
-    getAllAppointments
+    getAllAppointments,
+    updateAmin,
+    deleteAdmin
+    
 };

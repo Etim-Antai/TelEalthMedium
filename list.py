@@ -1,32 +1,17 @@
-# # Append the following elements to my_list: 10, 20, 30, 40
-number = [10, 20, 30, 40]
-print(number)
+# write a python program that will acept user details and store them in a list. and print it for the user using the list. append() method.
+# the code is as follows:
 
 
-#Insert the value 15 at the second position in the list.
-number.insert(1, 15)
-print("after insert:", number)
+# creating an  empty list
 
-# # Extend my_list with another list: [50, 60, 70].
-number2 = [50, 60, 70]
-
-number.extend(number2)
-
-
-print("after extend:", number)
-
-
-# # Remove the last element from my_list.
-del number[-1]
-
-print("after del:", number)
-
- # Sort my_list in ascending order.
-number.sort()
-
-print("after sort:", number)
-
-
-
-# # Find and print the index of the value 30 in my_list.
-print("index of 30:", number.index(30))
+user_list = []
+# taking user input for name, age, and email
+name = input("Enter your name: ")
+age = input("Enter your age: ")
+email = input("Enter your email: ")
+# appending the user details to the list using the append() method
+user_list.append(name) 
+user_list.append(age) 
+user_list.append(email) 
+# printing the list
+print("User Details: ", user_list)

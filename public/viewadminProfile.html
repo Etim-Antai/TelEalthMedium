@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <style>
+        /* Your existing styles go here... */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .profile-pic {
+            width: 150px;  /* Optional: change as needed */
+            height: 150px; /* Optional: change as needed */
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        p {
+            margin: 5px 0;
+            color: #555;
+        }
+        h3 {
+            margin-top: 20px;
+            color: #333;
+        }
+        .profile-buttons {
+            display: flex;
+            justify-content: center; /* Centering the button */
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            background-color: #3498db;
+            color: white;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        .return-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .return-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Profile</h1>
+
+        <div class="profile-header">
+            <img src="admin-profile-pic.jpg" alt="Admin's Profile Picture" class="profile-pic"> <!-- Placeholder image -->
+            <div>
+                <h2 id="username">Loading...</h2>
+                <p>Role: <span id="role">Loading...</span></p>
+                <p>Admin ID: <span id="admin_id">Loading...</span></p>
+            </div>
+        </div>
+
+        <div class="profile-buttons">
+            <a href="editAdminProfile.html" class="button">Edit Admin Profile</a>
+        </div>
+
+        <a href="db.html" class="return-link">Return to Dashboard</a>
+    </div>
+
+    <script>
+        // Fetching the admin's profile from the API endpoint
+        async function fetchAdminProfile() {
+            try {
+                const response = await fetch('http://localhost:9900/admin/profile', {
+                    method: 'GET',
+                    credentials: 'include' // Include credentials if your server requires it
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch admin profile');
+                }
+
+                const data = await response.json();
+
+                // Populate the profile with the fetched data
+                if (data.success) {
+                    document.getElementById('username').innerText = data.admin.username;
+                    document.getElementById('role').innerText = data.admin.role;
+                    document.getElementById('admin_id').innerText = data.admin.admin_id;
+                } else {
+                    document.getElementById('username').innerText = "Error: Admin not found";
+                }
+            } catch (error) {
+                console.error('Error fetching admin profile:', error);
+                alert('Error fetching admin profile. Please try again later.');
+            }
+        }
+
+        // Call the function to fetch the profile data when the page loads
+        window.onload = fetchAdminProfile;
+    </script>
+</body>
+</html>

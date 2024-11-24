@@ -93,6 +93,71 @@ const logout = (req, res) => {
 
 
 
+
+
+
+
+
+
+// get admin profile using findByUsername from adminModel, session:req.session.adminData
+const getProfile = async (req, res) => {
+    try {
+        const { username } = req.session.adminData; // Get the username from the session data
+        const admin = await Admin.findByUsername(username);
+        console.log('Admin object after fetch:', admin);
+        if (!admin) {
+            return res.status(404).json({ success: false, message: 'Admin not found!' });
+        }
+        res.status(200).json({ success: true, message: 'Admin profile fetched successfully!', admin });
+    } catch (error) {
+        console.error('Error fetching admin profile:', error);
+        res.status(500).json({ success: false, message: 'Error fetching admin profile', error: error.message });
+    }
+};
+
+
+
+const updateProfile = async (req, res) => {
+    try {
+        const { id: admin_id } = req.session.adminData; // Safely destructure admin_id from session
+        const { username, password, role } = req.body; // Destructure the required fields from req.body
+        
+        // Log the received request details
+        console.log("Update request received:", { admin_id, username, role });
+
+        // Check if admin_id is defined
+        if (!admin_id) {
+            return res.status(400).json({ success: false, message: 'Admin ID is undefined.' });
+        }
+
+        // Hash the password before saving
+        const password_hash = await bcrypt.hash(password, saltRounds);
+
+        // Prepare admin data for updating
+        const adminData = { admin_id, username, password_hash, role };
+
+        // Call the model's update function
+        const updatedAdmin = await Admin.updateAmin(adminData);
+        console.log('Updated admin object:', updatedAdmin);
+
+        res.status(200).json({ success: true, message: 'Admin profile updated successfully!', admin: updatedAdmin });
+    } catch (error) {
+        console.error('Error updating admin profile:', error);
+        res.status(500).json({ success: false, message: 'Error updating admin profile', error: error.message });
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
  
  // Register a patient
  
@@ -244,6 +309,34 @@ const getAppointments = async (req, res) => {
     }
 };
 
+
+
+
+// Function to capture hospital statistics
+const getHospitalStatistics = async (req, res) => {
+    try {
+        const [results] = await db.execute(`
+            SELECT 
+                (SELECT COUNT(*) FROM patients) AS total_patients,
+                (SELECT COUNT(*) FROM doctors) AS total_doctors,
+                (SELECT COUNT(*) FROM appointments) AS total_appointments,
+                (SELECT COUNT(*) FROM appointments WHERE status = 'Completed') AS completed_appointments,
+                (SELECT COUNT(*) FROM appointments WHERE status = 'Cancelled') AS cancelled_appointments,
+                (SELECT COUNT(*) FROM appointments WHERE status = 'Pending') AS pending_appointments,
+                (SELECT COUNT(*) FROM appointments WHERE appointment_date >= CURDATE()) AS upcoming_appointments
+        `);
+
+        res.status(200).json(results[0]); // Return the first row of results
+    } catch (error) {
+        console.error("Error retrieving hospital statistics:", error);
+        res.status(500).json({ message: 'Error retrieving statistics', error: error.message });
+    }
+};
+
+
+
+
+
 // Export all controller functions
 module.exports = { 
     register, 
@@ -254,5 +347,8 @@ module.exports = {
     getDoctors, 
     getPatients, 
     getDashboard, 
-    getAppointments 
+    getAppointments,
+    getHospitalStatistics,
+    getProfile,
+    updateProfile
 };

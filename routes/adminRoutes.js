@@ -13,6 +13,8 @@ router.post('/login', adminController.login);
 
 // Admin Logout
 router.get('/logout', adminController.logout);
+// git admin profile
+router.get('/profile', adminAuth, adminController.getProfile);
 
 // Route to register a new patient
 router.post('/register-patient', adminAuth, adminController.addPatient);
@@ -34,5 +36,10 @@ router.get('/doctors/:search?/:filterBySpecialization?', adminAuth, adminControl
 
 // Admin Dashboard - protected route
 router.get('/dashboard', adminAuth, adminController.getDashboard); // Ensure you have this in your adminController
+// hospital statistics
+router.get('/hospital-stats', adminAuth, adminController.getHospitalStatistics); // Ensure you have this in your adminController
+// url: http://localhost:9900/admin/hospital-stats
+// update profile - admin only
+router.put('/profile-update', adminAuth, adminController. updateProfile); // Ensure you have this in your adminController
 
 module.exports = router;

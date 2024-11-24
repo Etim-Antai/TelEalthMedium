@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Dashboard</title>
+    <title>View Patient Appointments</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,7 +21,6 @@
             width: 100%;
             padding: 10px 0;
             text-align: center;
-            position: relative; /* Position for logo */
         }
         nav {
             margin: 10px 0;
@@ -40,11 +38,11 @@
             flex: 1; /* Make the container take remaining space */
         }
         .sidebar {
-            width: 200px; /* Width for sidebar */
+            width: 200px; /* Width for sidebars */
             background-color: #5cb85c;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow-y: auto; /* Scroll if the content is too tall */
+            overflow-y: auto; /* Enable scrolling if the content is too tall */
         }
         .sidebar h2 {
             color: white;
@@ -69,6 +67,8 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: 20px; /* Margin around the main content */
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column; /* Stack main content items vertically */
         }
         footer {
             background-color: #5cb85c;
@@ -76,14 +76,11 @@
             text-align: center;
             padding: 20px 0;
         }
-        footer p {
-            margin: 5px 0;
-        }
-
         table {
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
+            display: none; /* Initially hidden */
         }
         th, td {
             border: 1px solid #ccc;
@@ -95,26 +92,66 @@
             color: white;
         }
         tr:hover {
-            background-color: #f5f5f5;
+            background-color: #f5f5f5; /* Highlight on row hover */
+        }
+
+        /* Additional button styling */
+        .action-button {
+            background-color: #dc3545; /* Red for cancel */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            text-align: center;
+            margin-right: 5px;
+        }
+        .action-button:hover {
+            background-color: #c82333; /* Darker red */
+        }
+
+        /* Styles for search input */
+        .search-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 10px; /* Adjust for padding */
+            top: 50%;
+            transform: translateY(-50%);
+            color: #5cb85c; /* Icon color */
+            font-size: 18px; /* Increased icon size */
+        }
+
+        .search-container input {
+            padding-left: 40px; /* Increased space to accommodate the icon */
+            width: 80%;
+            padding: 10px; /* Increased padding for better usability */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 5px;
+            font-size: 16px; /* Increased font size */
         }
     </style>
 </head>
 <body>
     <header>
-        <img src="logo.jpg" alt="Logo" class="logo"> <!-- Logo here -->
-        <h1>Doctor Dashboard</h1>
+        <h1>View Patient Appointments</h1>
         <nav>
             <span id="doctor-name"></span>
             <a href="doctorlogout.html">Logout</a>
             <a href="doctorlanding.html">Landing Page</a>
+            <a href="ddb.html">Return to Dashboard</a>
         </nav>
     </header>
 
     <div class="container">
         <div class="sidebar">
             <h2>Quick Actions</h2>
-            <a href="viewALLPatients.html"><i class="fas fa-user-md"></i>View Patients</a>
-            <a href="setPassword.html"><i class="fas fa-calendar-check"></i> Reset Password</a>
+            <a href="viewpatients.html"><i class="fas fa-users"></i> View Patients</a>
+            <a href="viewpatientappointments.html"><i class="fas fa-calendar-check"></i> View Appointments</a>
             <a href="contact.html"><i class="fas fa-envelope"></i> Contact Support</a>
             <a href="doctorProfile.html"><i class="fas fa-user"></i> View Profile</a>
             <a href="statistics.html"><i class="fas fa-chart-bar"></i> Appointment Statistics</a>
@@ -122,6 +159,10 @@
 
         <div class="main-content">
             <h2>Your Appointments</h2>
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-appointments" placeholder="Search Appointments..." oninput="searchAppointments()">
+            </div>
             <table id="appointment-list">
                 <thead>
                     <tr>
@@ -130,18 +171,13 @@
                         <th>Date</th>
                         <th>Time</th>
                         <th>Status</th>
+                        <th>Actions</th> <!-- Added actions column -->
                     </tr>
                 </thead>
                 <tbody id="appointments-data">
                     <!-- Dynamic appointment data will be populated here -->
                 </tbody>
             </table>
-
-            <h2>Monthly Appointment Statistics</h2>
-            <canvas id="doctorAppointmentsChart"></canvas>
-
-            <h2>Appointments Count per Patient</h2>
-            <canvas id="appointmentsPerPatientChart"></canvas> <!-- Chart for appointment counts per patient -->
         </div>
     </div>
 
@@ -163,124 +199,87 @@
 
         async function loadAppointments() {
             try {
-                const doctorId = localStorage.getItem('doctorId');
-                const response = await fetch(`http://localhost:9900/appointments/doctor/${doctorId}`, { credentials: 'include' });
+                const response = await fetch('http://localhost:9900/appointments/doctor', { credentials: 'include' }); // API endpoint for doctor's appointments
                 if (!response.ok) throw new Error('Failed to load appointments');
 
                 const data = await response.json();
-                console.log("Appointments Data:", data); // Log the data to see its structure
-
-                const appointments = data.appointments; 
+                const appointments = data.appointments; // Ensure this matches your API response structure
                 const appointmentList = document.getElementById('appointments-data');
                 appointmentList.innerHTML = ''; // Clear previous data
 
                 appointments.forEach(appointment => {
                     const row = appointmentList.insertRow();
-                    row.insertCell(0).innerText = appointment.appointment_id; 
-                    row.insertCell(1).innerText = `${appointment.patient_first_name || 'Unknown'} ${appointment.patient_last_name || ''}`;
+                    row.insertCell(0).innerText = appointment.appointment_id;
+                    row.insertCell(1).innerText = `${appointment.patient_first_name} ${appointment.patient_last_name}`; // Displays patient's full name
                     row.insertCell(2).innerText = appointment.appointment_date; 
                     row.insertCell(3).innerText = appointment.appointment_time; 
                     row.insertCell(4).innerText = appointment.status; 
+
+                    // Create action buttons
+                    const actionsCell = row.insertCell(5);
+                    const cancelButton = document.createElement('button');
+                    cancelButton.innerText = 'Cancel';
+                    cancelButton.classList.add('action-button');
+                    cancelButton.addEventListener('click', () => {
+                        cancelAppointment(appointment.appointment_id); // Function to cancel the appointment
+                    });
+
+                    actionsCell.appendChild(cancelButton);
                 });
+
+                // Show the appointment list
+                document.getElementById('appointment-list').style.display = 'table';
             } catch (error) {
                 console.error("Error loading appointments:", error);
                 alert("Error loading appointments: " + error.message);
             }
         }
 
-        function loadDoctorAppointmentsChart(data) {
-            const ctx = document.getElementById('doctorAppointmentsChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line', // Line chart for monthly appointments
-                data: {
-                    labels: data.labels, // Months or relevant labels
-                    datasets: [{
-                        label: 'Appointments per Month',
-                        data: data.counts, // Monthly counts of appointments
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
+        // Function to cancel an appointment
+        async function cancelAppointment(appointmentId) {
+            const confirmation = confirm("Are you sure you want to cancel this appointment?");
+            if (!confirmation) return;
 
-        async function loadDoctorStatistics() {
             try {
-                const response = await fetch('http://localhost:9900/doctors/statistics', { credentials: 'include' });
-                if (!response.ok) throw new Error('Failed to load appointment statistics');
+                const response = await fetch(`http://localhost:9900/appointments/cancel/${appointmentId}`, {
+                    method: 'DELETE',
+                    credentials: 'include' // Include credentials for session handling
+                });
 
-                const stats = await response.json();
-                // Load chart if monthly statistics exist
-                console.log("Doctor Statistics Data:", stats); // Log statistics for debugging
-                if (stats.monthlyStats && stats.monthlyStats.labels.length > 0) {
-                    loadDoctorAppointmentsChart(stats.monthlyStats);
-                }
+                if (!response.ok) throw new Error('Failed to cancel appointment');
+
+                alert('Appointment canceled successfully');
+                loadAppointments(); // Refresh the appointments list                    
             } catch (error) {
-                console.error("Error loading doctor statistics:", error);
-                alert("Error loading doctor statistics: " + error.message);
+                console.error(error.message);
             }
         }
 
-        async function loadAppointmentsPerPatient() {
-            try {
-                const response = await fetch('http://localhost:9900/appointments/byPatient', { credentials: 'include' });
-                if (!response.ok) throw new Error('Failed to load appointments per patient');
+        // Search appointments
+        function searchAppointments() {
+            const input = document.getElementById('search-appointments').value.toLowerCase();
+            const rows = document.getElementById('appointments-data').getElementsByTagName('tr');
 
-                const data = await response.json();
-                console.log("Appointments per Patient Data:", data); // Log appointment counts for debugging
-                loadAppointmentsPerPatientChart(data);
-            } catch (error) {
-                console.error("Error loading appointments per patient:", error);
-                alert("Error loading appointments per patient: " + error.message);
-            }
-        }
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let match = false;
 
-        function loadAppointmentsPerPatientChart(data) {
-            const ctx = document.getElementById('appointmentsPerPatientChart').getContext('2d');
-            
-            const labels = data.map(appointment => {
-                return `${appointment.patient_first_name} ${appointment.patient_last_name}`;
-            });
-            const counts = data.map(appointment => appointment.appointment_count);
-
-            new Chart(ctx, {
-                type: 'bar', // Bar chart for appointments per patient
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Appointments Count per Patient',
-                        data: counts,
-                        backgroundColor: 'rgba(153, 102, 255, 0.5)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j]) {
+                        const cellContent = cells[j].textContent || cells[j].innerText;
+                        if (cellContent.toLowerCase().includes(input)) {
+                            match = true;
+                            break;
                         }
                     }
                 }
-            });
+
+                rows[i].style.display = match ? '' : 'none';
+            }
         }
 
         // Load all data when the page is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAppointments();
-            loadDoctorStatistics(); // Load statistics for doctor appointments
-            loadAppointmentsPerPatient(); // Load appointments count per patient data
-        });
+        document.addEventListener('DOMContentLoaded', loadAppointments);
     </script>
 </body>
 </html>

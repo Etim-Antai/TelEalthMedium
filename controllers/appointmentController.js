@@ -186,7 +186,7 @@ exports.getAppointmentsPerDoctorStatistics = async (req, res) => {
 
 // Get Appointments Count per Patient
 exports.loadAppointmentsPerPatient = async (req, res) => {
-    const doctorId = req.session.doctorId; // Assuming doctor ID is in session
+    const doctorId = req.session.doctorData?.id; // Assuming doctor ID is in session
 
     if (!doctorId) {
         return res.status(401).json({ message: 'Not authenticated' });

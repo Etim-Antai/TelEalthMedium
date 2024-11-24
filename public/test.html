@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Hospital Statistics</h1>
+
+    <canvas id="hospitalStatsChart" width="400" height="200"></canvas>
+
+    <script>
+        // Function to fetch and display hospital statistics
+        const fetchHospitalStatistics = async () => {
+            try {
+                const response = await fetch('http://localhost:9900/admin/hospital-stats'); // Adjust the URL as needed
+                const data = await response.json();
+
+                // Prepare data for the chart
+                const stats = {
+                    labels: ['Total Patients', 'Total Doctors', 'Total Appointments', 'Completed Appointments', 'Cancelled Appointments', 'Pending Appointments', 'Upcoming Appointments'],
+                    data: [
+                        data.total_patients,
+                        data.total_doctors,
+                        data.total_appointments,
+                        data.completed_appointments,
+                        data.cancelled_appointments,
+                        data.pending_appointments,
+                        data.upcoming_appointments
+                    ]
+                };
+
+                // Create a chart
+                const ctx = document.getElementById('hospitalStatsChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'bar', // You can change this to 'pie', 'line', etc.
+                    data: {
+                        labels: stats.labels,
+                        datasets: [{
+                            label: 'Hospital Statistics',
+                            data: stats.data,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching hospital statistics:", error);
+            }
+        };
+
+        // Call the function to fetch and display the statistics when the page loads
+        window.onload = fetchHospitalStatistics;
+    </script>
+</body>
+</html>

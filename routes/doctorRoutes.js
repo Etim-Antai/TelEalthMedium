@@ -33,4 +33,32 @@ router.delete('/delete', doctorController.deleteAccount);
 router.post('/set-password', doctorController.setPassword); 
 // URL: http://localhost:9900/doctors/set-password
 
+
+// get all patients
+router.get('/patients', doctorController.getAllPatients); 
+// URL: http://localhost:9900/doctors/patients
+
+
+
+
+// get statistics
+router.get('/statistics', doctorController.getAppointmentStatistics,); 
+// URL: http://localhost:9900/doctors/statistics
+
+// age distribution of patients
+router.get('/age-distribution', doctorController.getAgeDistribution); 
+// url: http://localhost:9900/doctors/age-distribution
+
+
+// get doctot's appointments
+router.get('/appointments', doctorController.getDoctorAppointments); 
+// URL: http://localhost:9900/doctors/appointments
+
+// patient's distribution by address
+router.get('/address-distribution', doctorController.getPatientDistributionByAddress); 
+// URL: http://localhost:9900/doctors/address-distribution
+
+
+
 module.exports = router;
+

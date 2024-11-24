@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View All Patients</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            height: 100vh; /* Full height for layout */
+            flex-direction: column; /* Column layout */
+        }
+        header {
+            background-color: #5cb85c;
+            color: white;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #fff;
+        }
+        h1 {
+            margin: 20px 0;
+        }
+        .container {
+            display: flex;
+            flex: 1; /* Make the container take remaining space */
+        }
+        .sidebar {
+            width: 200px; /* Width for sidebar */
+            background-color: #5cb85c;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto; /* Enable scrolling if the content is too tall */
+        }
+        .sidebar h2 {
+            color: white;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            text-align: left;
+            padding: 10px;
+            text-decoration: none;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        .main-content {
+            flex: 1; /* Take remaining space between sidebars */
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px; /* Margin around the main content */
+        }
+        footer {
+            background-color: #5cb85c;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        footer p {
+            margin: 5px 0;
+        }
+        
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #5cb85c;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5; /* Highlight on row hover */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>View All Patients</h1>
+        <nav>
+            <span id="doctor-name"></span>
+            <a href="doctorlogout.html">Logout</a>
+            <a href="doctorlanding.html">Landing Page</a>
+            <a href="ddb.html">Return to Dashboard</a> <!-- Link to return to the dashboard -->
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <h2>Quick Actions</h2>
+            <a href="viewpatients.html"><i class="fas fa-users"></i> View Patients</a>
+            <a href="viewpatientappointmentPending.html"><i class="fas fa-calendar-check"></i> View Your Appointments</a>
+            <a href="contact.html"><i class="fas fa-envelope"></i> Contact Support</a>
+            <a href="doctorProfile.html"><i class="fas fa-user"></i> View Profile</a>
+            <a href="statistics.html"><i class="fas fa-chart-bar"></i> Appointment Statistics</a>
+        </div>
+
+        <div class="main-content">
+            <h2>Patients List</h2>
+            <table id="patients-list">
+                <thead>
+                    <tr>
+                        <th>Patient ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Date of Birth</th>
+                        <th>Gender</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody id="patients-data">
+                    <!-- Dynamic patient data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 All Rights Reserved.</p>
+        <p>Contact Us: support@allrightsreserve.com | Phone: (123) 456-7890</p>
+    </footer>
+
+    <script>
+        // Check if user is authenticated
+        if (!localStorage.getItem('doctorLoggedIn')) {
+            window.location.href = 'doctorlogin.html'; // Redirect if not logged in
+        }
+
+        // Load doctor info on the dashboard
+        const firstName = localStorage.getItem('doctorFirstName');
+        const lastName = localStorage.getItem('doctorLastName');
+        document.getElementById('doctor-name').innerText = `Welcome, Dr. ${firstName || 'User'} ${lastName || ''}`;
+
+        async function loadPatients() {
+            try {
+                const response = await fetch('http://localhost:9900/doctors/patients', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load patients');
+
+                const data = await response.json();
+                const patients = data.patients; // Ensure this matches your API response structure
+                const patientsList = document.getElementById('patients-data');
+                patientsList.innerHTML = ''; // Clear previous data
+
+                patients.forEach(patient => {
+                    const row = patientsList.insertRow();
+                    row.insertCell(0).innerText = patient.patient_id;
+                    row.insertCell(1).innerText = patient.first_name;
+                    row.insertCell(2).innerText = patient.last_name;
+                    row.insertCell(3).innerText = patient.email;
+                    row.insertCell(4).innerText = patient.phone;
+                    row.insertCell(5).innerText = patient.date_of_birth;
+                    row.insertCell(6).innerText = patient.gender;
+                    row.insertCell(7).innerText = patient.address;
+                });
+            } catch (error) {
+                console.error("Error loading patients:", error);
+                alert("Error loading patients: " + error.message);
+            }
+        }
+
+        // Load all data when the page is loaded
+        document.addEventListener('DOMContentLoaded', loadPatients);
+    </script>
+</body>
+</html>

@@ -6,6 +6,7 @@
     <title>Patient Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> <!-- Include Plotly.js -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -152,8 +153,8 @@
             </div>
             <canvas id="appointmentsChart"></canvas>
 
-            <h2>Appointment Status Distribution</h2>
-            <canvas id="appointmentStatusDoughnutChart"></canvas> <!-- Doughnut chart for appointment statuses -->
+            <h2>3D Appointment Status Distribution</h2>
+            <div id="appointmentStatus3DDoughnutChart" style="width: 100%; height: 400px;"></div> <!-- 3D doughnut chart -->
 
             <h2>Appointments per Doctor</h2>
             <canvas id="appointmentsPerDoctorChart"></canvas>
@@ -218,7 +219,7 @@
                 }
                 
                 // Load appointment status distribution
-                loadAppointmentStatusDistribution(); // New function to load doughnut chart
+                loadAppointmentStatus3DDoughnutChart(); // New function to load 3D doughnut chart
             } catch (error) {
                 console.error("Error loading appointment statistics:", error);
                 alert("Error loading appointment statistics: " + error.message);
@@ -288,68 +289,50 @@
             });
         }
 
-        async function loadAppointmentStatusDistribution() {
-    try {
-        const response = await fetch('http://localhost:9900/patients/appointment-status-distribution', { credentials: 'include' });
-        if (!response.ok) throw new Error('Failed to load appointment status distribution');
+        async function loadAppointmentStatus3DDoughnutChart() {
+            try {
+                const response = await fetch('http://localhost:9900/patients/appointment-status-distribution', { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to load appointment status distribution');
 
-        const data = await response.json(); // Expecting { statusDistribution: { status: {count: number} } }
-        
-        // Prepare the data for the doughnut chart
-        const statuses = Object.keys(data);
-        const counts = Object.values(data);
+                const data = await response.json(); // Expecting { status: { count: number } }
 
-        const ctx = document.getElementById('appointmentStatusDoughnutChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut', // Use a doughnut chart
-            data: {
-                labels: statuses, // Array of status names
-                datasets: [{
-                    label: 'Appointment Status Distribution',
-                    data: counts, // Corresponding counts for each status
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.5)',
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(153, 102, 255, 0.5)',
-                        'rgba(255, 205, 86, 0.5)',
-                        'rgba(54, 162, 235, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 205, 86, 1)',
-                        'rgba(54, 162, 235, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
+                // Prepare data for the 3D doughnut chart
+                const statuses = Object.keys(data);
+                const counts = Object.values(data);
+
+                const trace = {
+                    type: 'pie',
+                    labels: statuses, // The appointment statuses
+                    values: counts, // The corresponding counts
+                    hoverinfo: 'label+percent+value',
+                    textinfo: 'label+value',
+                    textposition: 'inside',
+                    hole: 0.3, // Creates a doughnut effect
+                    marker: {
+                        colors: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0'], // Set colors for each section
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                label += context.dataset.data[context.dataIndex];
-                                return label;
-                            }
+                    pull: [0.1, 0, 0, 0, 0] // Optional visual effect for separation
+                };
+
+                const layout = {
+                    title: '3D Appointment Status Distribution',
+                    height: 400,
+                    showlegend: true,
+                    autosize: true,
+                    hovermode: 'closest',
+                    scene: {
+                        camera: {
+                            eye: { x: 1.2, y: 1.2, z: 0.5 } // Adjust the camera view
                         }
                     }
-                }
+                };
+
+                Plotly.newPlot('appointmentStatus3DDoughnutChart', [trace], layout); // Create the plot
+            } catch (error) {
+                console.error("Error loading appointment status distribution for 3D doughnut chart:", error);
+                alert("Error loading appointment status distribution: " + error.message);
             }
-        });
-    } catch (error) {
-        console.error("Error loading appointment status distribution:", error);
-        alert("Error loading appointment status distribution: " + error.message);
-    }
-}
+        }
 
         // Load all data when the page is loaded
         document.addEventListener('DOMContentLoaded', () => {

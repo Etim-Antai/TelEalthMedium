@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Profile</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <style>
+        /* Your existing styles go here... */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        p {
+            margin: 5px 0;
+            color: #555;
+        }
+        h3 {
+            margin-top: 20px;
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin: 5px 0;
+        }
+        .profile-buttons {
+            display: flex;
+            justify-content: center; /* Centering the button */
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            background-color: #3498db;
+            color: white;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        .return-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .return-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Doctor Profile</h1>
+        
+        <div class="profile">
+            <div class="profile-header">
+                <img src="doctor-profile-pic.jpg" alt="Doctor's Profile Picture" class="profile-pic">
+                <div>
+                    <h2 id="doctor-name">Dr. John Doe</h2>
+                    <p id="doctor-specialization">Specialization</p>
+                </div>
+            </div>
+
+            <div class="profile-details">
+                <h3>Contact Information</h3>
+                <ul>
+                    <li>Email: <span id="doctor-email">email@example.com</span></li>
+                    <li>Phone: <span id="doctor-phone">123-456-7890</span></li>
+                </ul>
+            </div>
+
+            <div class="profile-schedule">
+                <h3>Schedule</h3>
+                <p id="doctor-schedule">Available Schedule goes here...</p>
+            </div>
+
+            <div class="profile-bio">
+                <h3>Biography</h3>
+                <p id="doctor-bio">Biography goes here...</p>
+            </div>
+
+            <div class="profile-buttons">
+                <a href="editDoctorProfile.html" class="button">Edit Doctor Profile</a>
+            </div>
+        </div>
+
+        <a href="ddb.html" class="return-link">Return to Dashboard</a>
+    </div>
+
+    <script>
+        // Fetching the doctor's profile from the API endpoint
+        async function fetchDoctorProfile() {
+            try {
+                const response = await fetch('http://localhost:9900/doctors/profile', {
+                    method: 'GET',
+                    credentials: 'include' // Include credentials if your server requires it
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch doctor profile');
+                }
+
+                const data = await response.json();
+
+                // Populate the profile with the fetched data
+                document.getElementById('doctor-name').innerText = `Dr. ${data.first_name} ${data.last_name}`;
+                document.getElementById('doctor-specialization').innerText = data.specialization;
+                document.getElementById('doctor-email').innerText = data.email;
+                document.getElementById('doctor-phone').innerText = data.phone;
+                document.getElementById('doctor-schedule').innerText = data.schedule;
+                document.getElementById('doctor-bio').innerText = data.bio || "No biography available.";
+            } catch (error) {
+                console.error('Error fetching doctor profile:', error);
+                alert('Error fetching doctor profile. Please try again later.');
+            }
+        }
+
+        // Call the function to fetch the profile data when the page loads
+        window.onload = fetchDoctorProfile;
+    </script>
+</body>
+</html>

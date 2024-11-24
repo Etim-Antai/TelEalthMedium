@@ -21,6 +21,10 @@ router.get('/statistics', appointmentController.getAppointmentStatistics);
 router.get('/patient', appointmentController.getPatientAppointments);
 // Example URL: http://localhost:9900/appointments/patient
 
+// Route to get count of appointments per patient for a doctor
+router.get('/doctor-patient', appointmentController.loadAppointmentsPerPatient);
+// Example URL: http://localhost:9900/appointments/doctor-patient
+
 // Route to get all appointments for a doctor
 router.get('/doctor/:doctor_id', appointmentController.getAppointmentsForDoctor);
 // Example URL: http://localhost:9900/appointments/doctor/:doctor_id
@@ -44,7 +48,7 @@ router.delete('/cancel/:appointment_id', appointmentController.cancelAppointment
 router.get('/doctor-statistics', appointmentController.getAppointmentsPerDoctorStatistics);
 // Example URL: http://localhost:9900/appointments/doctor-statistics
 
-// New route to get count of appointments per patient
+// New route to get appointment statistics per doctor
 router.get('/byPatient', appointmentController.loadAppointmentsPerPatient);
 // Example URL: http://localhost:9900/appointments/byPatient
 

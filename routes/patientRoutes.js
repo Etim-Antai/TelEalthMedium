@@ -26,6 +26,14 @@ router.post('/logout', patientController.logout);
 // url: http://localhost:9900/patients/logout
 router.delete('/delete/:patient_id', patientController.deleteAccount);
 // url: http://localhost:9900/patients/delete/:patient_id
+
+// appointment status distribution routes
+router.get('/appointment-status-distribution', patientController.getAppointmentStatusDistribution);
+
+// url: http://localhost:9900/patients/appointment-status-distribution
+
+
+
 module.exports = router;
 
 
