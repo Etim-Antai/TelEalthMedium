@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Our Healthcare System</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Import Font Awesome -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+        header {
+            background-color: #87CEEB; /* Sky blue background */
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-radius: 8px; /* Added corner radius for the header */
+        }
+        header img {
+            max-width: 100px; /* Adjust the logo size */
+            vertical-align: middle; /* Aligning the logo vertically */
+            margin-right: 10px; /* Space between logo and text */
+        }
+        .title {
+            font-size: 24px; /* Larger title font size */
+            font-weight: bold; /* Bold text */
+            display: inline-block; /* Aligns text with the logo */
+        }
+        .social-media {
+            margin-top: 10px; /* Space above the social media icons */
+        }
+        .social-media a {
+            color: white;
+            margin: 0 5px; /* Space between icons */
+            font-size: 18px; /* Size for social icons */
+        }
+        .social-media a:hover {
+            text-decoration: none; /* Remove underline on hover */
+            color: #FFD700; /* Change color on hover */
+        }
+        nav {
+            margin-bottom: 20px; /* Margin for the navigation bar */
+            text-align: center;
+        }
+        nav a {
+            color: #3498db; /* Color for navigation links */
+            margin: 0 15px; /* Space between links */
+            text-decoration: none; /* Remove underline */
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+        .intro-text {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px; /* Introductory text size */
+            color: #333; /* Color for the intro text */
+        }
+        .container {
+            display: flex;
+            width: 100%; /* Full width */
+            max-width: 1200px; /* Max width for larger screens */
+            margin: 0 auto; /* Center the container */
+            background: #fff;
+            padding: 15px; /* Adjust padding for smaller spaces */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Position relative for absolute children */
+        }
+        .aside {
+            width: 15%; /* Fixed width for side sections */
+            padding: 10px;
+            border-radius: 5px; /* Rounding the corners */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            display: none; /* Initially hide the asides */
+        }
+        .aside.left-aside {
+            background-color: #e7f3e7; /* Different background for login */
+        }
+        .aside.right-aside {
+            background-color: #e6f7ff; /* Different background for register */
+        }
+        .main-content {
+            flex: 1; /* Main content takes the remaining space */
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            background: #fefefe;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .statistics {
+            display: flex;
+            flex-wrap: wrap; /* Added for responsiveness */
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            flex: 1 1 30%; /* Allow flex items to grow and shrink */
+            margin: 5px; /* Add margin for spacing */
+        }
+        .stat-item i {
+            margin-right: 8px; /* Space between icon and text */
+            color: #5cb85c;
+        }
+        h1, h2 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+        h3 {
+            margin-top: 20px;
+            color: #333;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .gallery img {
+            width: 100%; /* Responsive image width */
+            max-width: 48%; /* Two images per row on wider screens */
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 10px 0;
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            .aside {
+                width: 25%; /* Increase width on smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                flex-direction: column; /* Stack layouts on smaller screens */
+            }
+            .aside {
+                width: 100%; /* Full width for asides on small screens */
+                display: none; /* Hide by default */
+            }
+            .main-content {
+                margin: 0; /* Remove margin for full width */
+            }
+            .gallery img {
+                max-width: 100%; /* Full width of images */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.jpg" alt="Logo"> <!-- Your logo image -->
+        <span class="title">Tele Health</span>
+        <div class="social-media">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+    </header>
+
+    <nav>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+        <a href="#login" onclick="toggleLogin()">Login</a>
+        <a href="#register" onclick="toggleRegister()">Register</a>
+    </nav>
+
+    <div class="intro-text">
+        <p>Welcome to our Tele Health system, where we connect you with healthcare professionals remotely for your convenience and safety.</p>
+    </div>
+    
+    <div class="container">
+        <div class="aside left-aside" id="login-section">
+            <h2>Login</h2>
+            <a href="login.html" class="button"><i class="fas fa-user-shield"></i> Login as Admin</a>
+            <a href="doctorlogin.html" class="button"><i class="fas fa-user-md"></i> Login as Doctor</a>
+            <a href="patientLogin.html" class="button"><i class="fas fa-user-injured"></i> Login as Patient</a>
+        </div>
+        
+        <div class="main-content">
+            <h2>Statistics</h2>
+            <div class="statistics">
+                <div class="stat-item">
+                    <i class="fas fa-plus"></i>
+                    <p>Doctors: <span id="totalDoctors">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-plus"></i>
+                    <p>Patients: <span id="totalPatients">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-plus"></i>
+                    <p>Appointments: <span id="totalAppointments">0</span></p>
+                </div>
+            </div>
+
+            <h2>Appointment Status Chart</h2>
+            <canvas id="appointmentStatusChart" width="400" height="200"></canvas>
+
+            <h2>Upcoming Appointments</h2>
+            <canvas id="appointmentTimelineChart" width="400" height="200"></canvas>
+
+            <h2>Gallery</h2>
+            <div class="gallery">
+                <a href="https://example.com/image1.jpg" target="_blank">
+                    <img src="https://plus.unsplash.com/premium_photo-1673953509975-576678fa6710?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Healthcare Image 1">
+                </a>
+                <a href="https://example.com/image2.jpg" target="_blank">
+                    <img src="https://media.istockphoto.com/id/1496102832/photo/hands-tablet-and-doctor-for-hologram-overlay-telehealth-medical-innovation-and-global-web.webp?s=1024x1024&w=is&k=20&c=hPjiv-whPPwvLXFBh6V2QpuWMIyYNB3EOM9C_iGeCMw=" alt="Healthcare Image 2">
+                </a>
+                <a href="https://example.com/image3.jpg" target="_blank">
+                    <img src="https://plus.unsplash.com/premium_photo-1673547484742-3a9beb1019c3?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Healthcare Image 3">
+                </a>
+                <a href="https://example.com/image4.jpg" target="_blank">
+                    <img src="https://plus.unsplash.com/premium_photo-1673953509975-576678fa6710?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Healthcare Image 4">
+                </a>
+            </div>
+
+            <h2>Subscribe to our Newsletter</h2>
+            <a href="#" class="button">Subscribe</a>
+        </div>
+
+        <div class="aside right-aside" id="register-section">
+            <h2>Register</h2>
+            <a href="adminRegister.html" class="button"><i class="fas fa-user-plus"></i> Register as Admin</a>
+            <a href="registerDoctor.html" class="button"><i class="fas fa-user-md"></i> Register as Doctor</a>
+            <a href="patientRegistration.html" class="button"><i class="fas fa-user-injured"></i> Register as Patient</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Healthcare System. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Fetch total doctors
+            fetch('/stats/doctors')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalDoctors').innerText = data.totalDoctors || '0';
+                })
+                .catch(error => console.error('Error fetching total doctors:', error));
+
+            // Fetch total patients
+            fetch('/stats/patients')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalPatients').innerText = data.totalPatients || '0';
+                })
+                .catch(error => console.error('Error fetching total patients:', error));
+
+            // Fetch total appointments
+            fetch('/stats/appointments')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalAppointments').innerText = data.totalAppointments || '0';
+                })
+                .catch(error => console.error('Error fetching total appointments:', error));
+
+            // Fetch appointment counts by status
+            fetch('/stats/appointments/status')
+                .then(response => response.json())
+                .then(data => {
+                    displayAppointmentStatusChart(data); // Call function to display the chart
+                })
+                .catch(error => console.error('Error fetching appointment status:', error));
+
+            // Fetch upcoming appointments
+            fetch('/stats/appointments/upcoming')
+                .then(response => response.json())
+                .then(data => {
+                    displayAppointmentTimelineChart(data); // Call function to display the upcoming appointments chart
+                })
+                .catch(error => console.error('Error fetching upcoming appointments:', error));
+        });
+
+        function displayAppointmentStatusChart(data) {
+            const ctx = document.getElementById('appointmentStatusChart').getContext('2d');
+            const labels = data.map(item => item.status);
+            const counts = data.map(item => item.count);
+
+            new Chart(ctx, {
+                type: 'bar', // Change to your preferred chart type
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Appointments by Status',
+                        data: counts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayAppointmentTimelineChart(data) {
+            const ctx = document.getElementById('appointmentTimelineChart').getContext('2d');
+            const labels = data.map(appointment => `${appointment.appointment_date} ${appointment.appointment_time}`);
+            const appointmentCounts = data.map((_, index) => index + 1); // Create a simple index count
+
+            new Chart(ctx, {
+                type: 'line', // Use 'line' for a timeline effect
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Upcoming Appointments',
+                        data: appointmentCounts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleLogin() {
+            var loginSection = document.getElementById("login-section");
+            loginSection.style.display = (loginSection.style.display === "none" || loginSection.style.display === "") ? "block" : "none";
+            var registerSection = document.getElementById("register-section");
+            registerSection.style.display = "none"; // Close Register section if Login is opened
+        }
+
+        function toggleRegister() {
+            var registerSection = document.getElementById("register-section");
+            registerSection.style.display = (registerSection.style.display === "none" || registerSection.style.display === "") ? "block" : "none";
+            var loginSection = document.getElementById("login-section");
+            loginSection.style.display = "none"; // Close Login section if Register is opened
+        }
+    </script>
+</body>
+</html>

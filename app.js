@@ -10,11 +10,10 @@ const patientRoutes = require('./routes/patientRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const app = express();
-
+const statsRouter = require('./routes/statsRouter'); // Ensure you've created this
 const appointmentController = require('./controllers/appointmentController');
 
-
+const app = express();
 
 // Enable CORS for all routes
 app.use(cors({
@@ -69,11 +68,12 @@ const db = mysql.createPool({
 // Attach the database pool to the app for use in routes
 app.set('db', db);
 
-// Use routes for patient, appointment, doctor, and admin-related requests
+// Use routes for patient, appointment, doctor, stats, and admin-related requests
 app.use('/patients', patientRoutes);
 app.use('/appointments', appointmentRoutes);
 app.use('/doctors', doctorRoutes);
 app.use('/admin', adminRoutes); // Admin routes should be after session management
+app.use('/stats', statsRouter); // Add the stats router here
 
 // Debug route to check database connectivity
 app.get('/debug/db', async (req, res) => {
@@ -90,22 +90,18 @@ app.get('/', (req, res) => {
     res.send('Welcome to the Telemedicine Application');
 });
 
+// Schedule cron jobs, etc.
 cron.schedule('* * * * *', () => {
     appointmentController.markCompletedAppointments();
-
-
 });
 
+// Test marking completed appointments
 app.get('/test/mark-completed', async (req, res) => {
     await appointmentController.markCompletedAppointments();
     res.status(200).send('Completed marking function executed');
 });
 
-
-
-
-
-// Route for handling errors
+// Handling Not Found error
 app.use((req, res, next) => {
     const error = new Error('Not Found');
     error.status = 404;

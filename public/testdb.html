@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Appointment Statistics</h1>
+    
+    <!-- Chart Container -->
+    <canvas id="appointmentChart" width="400" height="200"></canvas>
+    
+    <script>
+        // Fetch appointment statistics and render the chart
+        async function fetchAppointmentStatistics() {
+            try {
+                const response = await fetch('http://localhost:9900/appointments/doctor-appointmentcount'); // Endpoint for fetching data
+                const data = await response.json();
+                renderChart(data);
+            } catch (error) {
+                console.error("Failed to fetch appointment statistics:", error);
+            }
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('appointmentChart').getContext('2d');
+
+            // Extracting doctor names and appointment counts from the response
+            const doctorNames = data.map(doctor => `${doctor.first_name} ${doctor.last_name}`);
+            const appointmentCounts = data.map(doctor => doctor.count);
+
+            const chart = new Chart(ctx, {
+                type: 'bar', // You can change this to line, pie, etc.
+                data: {
+                    labels: doctorNames,
+                    datasets: [{
+                        label: 'Number of Appointments',
+                        data: appointmentCounts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Call the function to fetch data when the page loads
+        window.onload = fetchAppointmentStatistics;
+    </script>
+</body>
+</html>

@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
+            background-color: #f0f0f0; 
             display: flex;
-            height: 100vh; /* Full height for layout */
-            flex-direction: column; /* Column layout */
+            height: 100vh; 
+            flex-direction: column; 
         }
         header {
             background-color: #5cb85c;
@@ -22,7 +22,7 @@
             width: 100%;
             padding: 10px 0;
             text-align: center;
-            position: relative; /* Added for absolute positioning of logo */
+            position: relative; 
         }
         nav {
             margin: 10px 0;
@@ -36,21 +36,21 @@
             margin: 20px 0;
         }
         .logo {
-            position: absolute; /* Position the logo */
-            top: 10px; /* Position from the top */
-            left: 20px; /* Position from the left */
-            height: 40px; /* Adjust height as needed */
+            position: absolute; 
+            top: 10px; 
+            left: 20px; 
+            height: 40px; 
         }
         .container {
             display: flex;
-            flex: 1; /* Make the container take remaining space */
+            flex: 1; 
         }
         .sidebar {
-            width: 200px; /* Width for both sidebars */
+            width: 200px; 
             background-color: #5cb85c;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow-y: auto; /* Enable scrolling if the content is too tall */
+            overflow-y: auto; 
         }
         .sidebar h2 {
             color: white;
@@ -69,12 +69,12 @@
             background-color: rgba(255, 255, 255, 0.4);
         }
         .main-content {
-            flex: 1; /* Take remaining space between sidebars */
+            flex: 1; 
             padding: 20px;
             background: white;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 20px; /* Margin around the main content */
+            margin: 20px; 
         }
         footer {
             background-color: #5cb85c;
@@ -103,19 +103,44 @@
         tr:hover {
             background-color: #f5f5f5;
         }
+
+        canvas {
+            max-width: 100%; 
+            margin: 20px 0; 
+        }
+        .statistics {
+            margin-top: 20px; /* Add margin to move down */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+        .statistics p {
+            margin: 5px 0;
+        }
+        .statistics i {
+            margin-right: 5px; /* Space between icon and text */
+        }
     </style>
 </head>
 <body>
     <header>
-        <img src="logo.jpg" alt="Logo" class="logo"> <!-- Logo added here -->
+        <img src="logo.jpg" alt="Logo" class="logo"> 
         <h1>Patient Dashboard</h1>
         <nav>
-            <span id="patient-name"></span>
-            <a href="patientlogout.html">Logout</a>
-            <a href="patientlanding.html">Landing Page</a>
-        </nav>
-    </header>
+    <span id="patient-name"></span>
+    <a href="index.html"><i class="fas fa-home"></i> Home</a> <!-- Home Link with Icon -->
+    <a href="patientlogout.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <a href="patientlanding.html"><i class="fas fa-door-open"></i> Landing Page</a>
+    <div id="appointment-status" style="color: white;"> <br> <br>
+        <strong><i class="fas fa-calendar-minus"></i> Scheduled: </strong><span id="scheduledCount">0</span> |
+        <strong><i class="fas fa-calendar-check"></i> Completed: </strong><span id="completedCount">0</span> |
+        <strong><i class="fas fa-calendar-plus"></i> Rescheduled: </strong><span id="rescheduledCount">0</span> |
+        <strong><i class="fas fa-calendar-times"></i> Canceled: </strong><span id="canceledCount">0</span>
+    </div>
+</nav>
 
+        
     <div class="container">
         <div class="sidebar">
             <h2>Quick Actions</h2>
@@ -143,26 +168,28 @@
                 </tbody>
             </table>
 
-            <h2>Appointment Statistics</h2>
-            <div>
-                <p>Total Appointments: <span id="total-appointments">0</span></p>
-                <p>Cancelled Appointments: <span id="cancelled-appointments">0</span></p>
-                <p>Completed Appointments: <span id="completed-appointments">0</span></p>
-                <p>Upcoming Appointments: <span id="upcoming-appointments">0</span></p>
+            <div class="statistics">
+                <h2>Appointment Statistics</h2>
+                <p><i class="fas fa-calendar"></i>Total Appointments: <span id="total-appointments">0</span></p>
+                <p><i class="fas fa-calendar-times"></i>Cancelled Appointments: <span id="cancelled-appointments">0</span></p>
+                <p><i class="fas fa-check-circle"></i>Completed Appointments: <span id="completed-appointments">0</span></p>
+                <p><i class="fas fa-calendar-check"></i>Upcoming Appointments: <span id="upcoming-appointments">0</span></p>
             </div>
-            <canvas id="appointmentsChart"></canvas>
-
-            <h2>Appointment Status Distribution</h2>
-            <canvas id="appointmentStatusDoughnutChart"></canvas> <!-- Doughnut chart for appointment statuses -->
+            
+            <h2>Appointments per Month</h2>
+            <canvas id="appointmentsChart" width="400" height="200"></canvas>
 
             <h2>Appointments per Doctor</h2>
-            <canvas id="appointmentsPerDoctorChart"></canvas>
+            <canvas id="appointmentsPerDoctorChart" width="400" height="200"></canvas>
+
+            <h2>Appointment Status Distribution</h2>
+            <canvas id="appointmentStatusDoughnutChart" width="400" height="200"></canvas>
         </div>
     </div>
 
     <footer>
         <p>&copy; 2023 All Rights Reserved.</p>
-        <p>Contact Us: etymantai@gmail.com | Phone: (+123) 7030253125   |   Fax: (+123) 7030253126</p>
+        <p>Contact Us: etymantai@gmail.com | Phone: (+123) 7030253125 | Fax: (+123) 7030253126</p>
     </footer>
 
     <script>
@@ -189,7 +216,7 @@
                 appointments.forEach(appointment => {
                     const row = appointmentList.insertRow();
                     row.insertCell(0).innerText = appointment.appointment_id; 
-                    row.insertCell(1).innerText = `${appointment.doctor_first_name} ${appointment.doctor_last_name}`; // Shows the doctor's name
+                    row.insertCell(1).innerText = `${appointment.doctor_first_name} ${appointment.doctor_last_name}`; 
                     row.insertCell(2).innerText = appointment.appointment_date; 
                     row.insertCell(3).innerText = appointment.appointment_time; 
                     row.insertCell(4).innerText = appointment.status; 
@@ -212,25 +239,22 @@
                 document.getElementById('completed-appointments').innerText = stats.completedAppointments || 0;
                 document.getElementById('upcoming-appointments').innerText = stats.upcomingAppointments || 0;
 
-                // Load appointments chart with monthly statistics if they exist
-                if (stats.monthlyStats && stats.monthlyStats.labels.length > 0) {
+                // Load monthly appointments chart
+                if (stats.monthlyStats) {
                     loadAppointmentsChart(stats.monthlyStats);
                 }
-                
-                // Load appointment status distribution
-                loadAppointmentStatusDistribution(); // New function to load doughnut chart
             } catch (error) {
                 console.error("Error loading appointment statistics:", error);
                 alert("Error loading appointment statistics: " + error.message);
             }
         }
 
-        async function loadAppointmentsPerDoctor() {
+        async function getAppointmentsCountPerDoctor() {
             try {
-                const response = await fetch('http://localhost:9900/appointments/doctor-statistics', { credentials: 'include' });
+                const response = await fetch('http://localhost:9900/appointments/doctor-appointmentcount', { credentials: 'include' });
                 if (!response.ok) throw new Error('Failed to load appointments per doctor');
 
-                const data = await response.json();
+                const data = await response.json(); 
                 loadAppointmentsPerDoctorChart(data);
             } catch (error) {
                 console.error("Error loading appointments per doctor:", error);
@@ -243,10 +267,10 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: data.labels,
+                    labels: data.labels, // Expecting the labels (e.g., months)
                     datasets: [{
                         label: 'Appointments per Month',
-                        data: data.counts,
+                        data: data.counts, // Expecting appointment counts
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         fill: true
@@ -266,12 +290,12 @@
         function loadAppointmentsPerDoctorChart(data) {
             const ctx = document.getElementById('appointmentsPerDoctorChart').getContext('2d');
             new Chart(ctx, {
-                type: 'bar', // Change this type if you prefer a different chart style
+                type: 'bar',
                 data: {
-                    labels: data.doctorNames, // Array of doctor names
+                    labels: data.map(doctor => `${doctor.first_name} ${doctor.last_name}`),
                     datasets: [{
                         label: 'Appointments per Doctor',
-                        data: data.appointmentCounts, // Corresponding counts for each doctor
+                        data: data.map(doctor => doctor.count),
                         backgroundColor: 'rgba(75, 192, 192, 0.5)',
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1
@@ -289,73 +313,62 @@
         }
 
         async function loadAppointmentStatusDistribution() {
-    try {
-        const response = await fetch('http://localhost:9900/patients/appointment-status-distribution', { credentials: 'include' });
-        if (!response.ok) throw new Error('Failed to load appointment status distribution');
+            try {
+                const response = await fetch('http://localhost:9900/patients/appointment-status-distribution', { credentials: 'include' });
+                
+                if (!response.ok) throw new Error('Failed to load appointment status distribution');
 
-        const data = await response.json(); // Expecting { statusDistribution: { status: {count: number} } }
-        
-        // Prepare the data for the doughnut chart
-        const statuses = Object.keys(data);
-        const counts = Object.values(data);
+                const data = await response.json(); 
+                
+                // Update status counts in the navigation using new keys from response
+                document.getElementById('scheduledCount').innerText = data.Scheduled || 0;
+                document.getElementById('completedCount').innerText = data.Completed || 0;
+                document.getElementById('rescheduledCount').innerText = data.rescheduled || 0;
+                document.getElementById('canceledCount').innerText = data.Canceled || 0;
 
-        const ctx = document.getElementById('appointmentStatusDoughnutChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut', // Use a doughnut chart
-            data: {
-                labels: statuses, // Array of status names
-                datasets: [{
-                    label: 'Appointment Status Distribution',
-                    data: counts, // Corresponding counts for each status
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.5)',
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(153, 102, 255, 0.5)',
-                        'rgba(255, 205, 86, 0.5)',
-                        'rgba(54, 162, 235, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 205, 86, 1)',
-                        'rgba(54, 162, 235, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
+                // Prepare data for the doughnut chart
+                const statuses = ["Scheduled", "Completed", "Rescheduled", "Canceled"];
+                const counts = [data.Scheduled, data.Completed, data.rescheduled, data.Canceled];
+
+                const ctx = document.getElementById('appointmentStatusDoughnutChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: statuses,
+                        datasets: [{
+                            label: 'Appointment Status Distribution',
+                            data: counts,
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.5)', // Scheduled
+                                'rgba(153, 102, 255, 0.5)', // Completed
+                                'rgba(255, 205, 86, 0.5)', // Rescheduled
+                                'rgba(255, 99, 132, 0.5)'  // Canceled
+                            ],
+                            borderColor: [
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 205, 86, 1)',
+                                'rgba(255, 99, 132, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                label += context.dataset.data[context.dataIndex];
-                                return label;
-                            }
-                        }
+                    options: {
+                        responsive: true,
                     }
-                }
+                });
+            } catch (error) {
+                console.error("Error loading appointment status distribution:", error);
+                alert("Error loading appointment status distribution: " + error.message);
             }
-        });
-    } catch (error) {
-        console.error("Error loading appointment status distribution:", error);
-        alert("Error loading appointment status distribution: " + error.message);
-    }
-}
+        }
 
         // Load all data when the page is loaded
         document.addEventListener('DOMContentLoaded', () => {
             loadAppointments();
             loadAppointmentStatistics();
-            loadAppointmentsPerDoctor(); // Load doctor statistics
+            getAppointmentsCountPerDoctor(); 
+            loadAppointmentStatusDistribution(); // Load the appointment status distribution
         });
     </script>
 </body>

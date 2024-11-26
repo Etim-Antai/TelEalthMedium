@@ -133,16 +133,16 @@ const createPatient = async (patientData) => {
 // Register a doctor
 const createDoctor = async (doctorData) => {    
     try {
-        const { first_name, last_name, specialization, email, phone, schedule } = doctorData; // Corrected to use first_name and last_name
-        const [result] = await db.query('INSERT INTO doctors (first_name, last_name, specialization, email, phone, schedule) VALUES (?, ?, ?, ?, ?, ?)', 
-                                        [first_name, last_name, specialization, email, phone, schedule]);
+        const { first_name, last_name, specialization, email, password, phone, schedule } = doctorData; // Corrected to use first_name and last_name
+        const [result] = await db.query('INSERT INTO doctors (first_name, last_name, specialization, email, password, phone, schedule) VALUES (?, ?, ?, ?, ?,?, ?)', 
+                                        [first_name, last_name, specialization, email, password, phone, schedule]);
 
         console.log("Database Insert Result:", result); // Log the full result of the insert query
         if (!result || typeof result.insertId === 'undefined') {
             throw new Error('Insert operation failed. No ID returned.');
         }
 
-        const newDoctor = { doctor_id: result.insertId, first_name, last_name, specialization, email, phone, schedule }; // New doctor object
+        const newDoctor = { doctor_id: result.insertId, first_name, last_name, specialization, email, password, phone, schedule }; // New doctor object
         console.log("Doctor registered successfully:", newDoctor); // Log successful registration details
 
         return newDoctor; // Return the newly created doctor object with the ID

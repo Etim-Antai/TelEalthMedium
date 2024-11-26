@@ -210,19 +210,22 @@ const addPatient = async (req, res) => {
 
 
 
-
-
 // Admin - Register Doctor
 const addDoctor = async (req, res) => {
-    const { first_name, last_name, specialization, email, phone, schedule } = req.body;
+    const { first_name, last_name, specialization, email, password, phone, schedule } = req.body;
     try {
         // Validate input
-        if (!first_name || !last_name || !specialization || !email||!phone || !schedule) {
+        if (!first_name || !last_name || !specialization || !email || !password || !phone || !schedule) {
             return res.status(400).json({ message: 'All fields are required!' });
         }
 
-        // Create new doctor object
-        const newDoctor = { first_name, last_name, specialization,email, phone, schedule };
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
+
+        // Create new doctor object with the hashed password
+        const newDoctor = { first_name, last_name, specialization, email, password: hashedPassword, phone, schedule };
+
+        // Save the new doctor to the database
         const savedDoctor = await Admin.createDoctor(newDoctor); // Assuming createDoctor method is defined in adminModel
 
         console.log("Doctor registered successfully:", savedDoctor);

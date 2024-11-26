@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const appointmentController = require('../controllers/appointmentController'); // Import appointment controller
-
+const patientController = require('../controllers/patientController'); // Import patient controller
 // Route to book an appointment
 router.post('/book', appointmentController.createAppointment);
 // Example URL: http://localhost:9900/appointments/book
@@ -51,5 +51,19 @@ router.get('/doctor-statistics', appointmentController.getAppointmentsPerDoctorS
 // New route to get appointment statistics per doctor
 router.get('/byPatient', appointmentController.loadAppointmentsPerPatient);
 // Example URL: http://localhost:9900/appointments/byPatient
+
+
+router.get('/doctor-appointment', patientController.getAppointmentsPerDoctorStatistics);
+// Example URL: http://localhost:9900/appointments/doctor-appointment
+
+
+router.get('/doctor-appointmentcount', appointmentController.getAppointmentsCountPerDoctor);
+// Example URL: http://localhost:9900/appointments/doctor-appointmentcount
+
+
+router.put('/update-appointment', appointmentController.updateAppointment)
+// Example URL: http://localhost:9900/appointments/update-appointment
+
+
 
 module.exports = router;

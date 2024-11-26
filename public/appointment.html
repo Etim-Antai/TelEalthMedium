@@ -25,7 +25,7 @@
 
         h1 {
             text-align: center;
-            color: #007BFF;
+            color: #007BFF; /* Primary brand color */
         }
 
         .form-group {
@@ -47,8 +47,22 @@
             transition: border-color 0.3s;
         }
 
-        select:focus, input[type="date"]:focus, input[type="time"]:focus {
-            border-color: #007BFF;
+        /* Styling for the doctor dropdown */
+        select {
+            appearance: none; /* Remove default arrow */
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg>') no-repeat right 10px center;
+            background-size: 12px;
+            padding-right: 30px; /* Space for the custom arrow */
+        }
+
+        select:focus {
+            border-color: #007BFF; /* Change border color on focus */
+            outline: none; /* Remove default outline */
+        }
+
+        input[type="date"]:focus,
+        input[type="time"]:focus {
+            border-color: #007BFF; /* Change border color on focus */
             outline: none; /* Remove default outline */
         }
 
@@ -58,7 +72,7 @@
             padding: 12px 20px;
             font-size: 16px;
             color: white;
-            background-color: #007BFF;
+            background-color: #007BFF; /* Primary brand color */
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -67,15 +81,7 @@
         }
 
         .button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Extra styling for the doctor dropdown */
-        select {
-            appearance: none; /* Remove default arrow */
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg>') no-repeat right 10px center;
-            background-size: 12px;
-            padding-right: 30px; /* Space for the custom arrow */
+            background-color: #0056b3; /* Darker shade on hover */
         }
 
         @media (max-width: 768px) {
@@ -118,6 +124,7 @@
     </div>
 
     <script>
+        // Populate the doctor dropdown
         document.addEventListener('DOMContentLoaded', async () => {
             const doctorSelect = document.getElementById('doctor_id');
 
@@ -126,11 +133,22 @@
                 const response = await fetch('http://localhost:9900/doctors/all-doctors');
                 if (!response.ok) throw new Error('Failed to fetch doctors');
 
-                const doctors = await response.json();
+                const data = await response.json();
+                console.log(data); // Log the server response for debugging
+
+                // Access the doctors array from the response
+                const doctors = data.doctors;
+
+                // Check if the response is an array
+                if (!Array.isArray(doctors)) {
+                    throw new Error('Expected an array of doctors, but got something else.');
+                }
+
+                // Populate the dropdown with doctors
                 doctors.forEach(doctor => {
                     const option = document.createElement('option');
                     option.value = doctor.doctor_id; // Use the doctor_id from your table
-                    option.textContent = `${doctor.first_name} ${doctor.last_name} - ${doctor.specialization}`; // Use names and specialization
+                    option.textContent = `${doctor.first_name} ${doctor.last_name} - ${doctor.specialization} ${doctor.schedule}`; // Use names and specialization
                     doctorSelect.appendChild(option);
                 });
             } catch (error) {
@@ -139,6 +157,7 @@
             }
         });
 
+        // Handle appointment form submission
         document.getElementById('appointment-form').addEventListener('submit', async (event) => {
             event.preventDefault();
 
@@ -160,7 +179,7 @@
                 const data = await response.json();
                 alert(data.message); // Display success message
 
-                // Redirect back to dashboard after successful booking
+                // Redirect back to the dashboard after successful booking
                 window.location.href = 'pdb.html'; // Redirect to dashboard
             } catch (error) {
                 console.error('Error booking appointment:', error);

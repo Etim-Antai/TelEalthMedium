@@ -184,6 +184,44 @@ const getAppointmentStatusDistribution = async (req, res) => {
 };
 
 
+// Get Appointment Statistics per Doctor for a particular patient
+const getAppointmentsPerDoctorStatistics = async (req, res) => {
+    try {
+        const { patientId } = req.params; // Assume patientId is passed as a route parameter
+
+        // SQL query to fetch doctor statistics
+        const [doctorStats] = await db.execute(
+            `
+            SELECT 
+                d.first_name, 
+                d.last_name, 
+                COUNT(a.appointment_id) AS appointment_count
+            FROM 
+                appointments a
+            INNER JOIN 
+                doctors d 
+            ON 
+                a.doctor_id = d.doctor_id
+            WHERE 
+                a.patient_id = ?
+            GROUP BY 
+                a.doctor_id
+            `,
+            [patientId] // Use parameterized query to prevent SQL injection
+        );
+
+        // Format response
+        const formattedStats = {
+            doctorNames: doctorStats.map(doctor => `${doctor.first_name} ${doctor.last_name}`),
+            appointmentCounts: doctorStats.map(doctor => doctor.appointment_count),
+        };
+
+        res.status(200).json(formattedStats);
+    } catch (error) {
+        console.error("Error getting appointment statistics per doctor:", error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
 
 
@@ -204,6 +242,7 @@ module.exports = {
     getProfile,
     updateProfile,
     deleteAccount,
-    getAppointmentStatusDistribution
+    getAppointmentStatusDistribution,
+    getAppointmentsPerDoctorStatistics
 };
 

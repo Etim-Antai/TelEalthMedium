@@ -8,7 +8,7 @@ const saltRounds = 10;  // Salt rounds constant
 
 // Register a new doctor
 const register = async (req, res) => {
-    const { first_name, last_name, specialization, email, phone, schedule, password } = req.body;
+    const { first_name, last_name, specialization, email, password, phone, schedule } = req.body;
 
     try {
         // Check for existing doctor by email

@@ -43,6 +43,11 @@
         button:hover {
             background-color: #4cae4c;
         }
+        .loading-message {
+            text-align: center;
+            margin-top: 10px;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -55,6 +60,7 @@
             <input type="time" id="appointment-time" required>
             <button type="submit">Reschedule Appointment</button>
         </form>
+        <div id="loading" class="loading-message" style="display: none;"></div>
     </div>
 
     <script>
@@ -74,27 +80,43 @@
                 return;
             }
 
+            // Show loading indication
+            const button = event.target.querySelector('button');
+            button.disabled = true; // Disable the button to prevent multiple submissions
+            button.innerText = 'Rescheduling...'; // Change button text
+            const loadingMessage = document.getElementById('loading');
+            loadingMessage.innerText = 'Processing...';
+            loadingMessage.style.display = 'block'; // Show loading message
+
             try {
-                const response = await fetch(`http://localhost:9900/appointments/update/${appointmentId}`, {
+                const response = await fetch(`http://localhost:9900/appointments/update-appointment`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
+                        appointment_id: appointmentId, // Pass appointment_id from URL
                         appointment_date: date,
-                        appointment_time: time,
-                        appointment_id: appointmentId
+                        appointment_time: time
                     }),
                     credentials: 'include' // Include credentials for session handling
                 });
 
-                if (!response.ok) throw new Error('Failed to reschedule the appointment');
+                if (!response.ok) {
+                    const errorData = await response.json(); // Get error response body
+                    throw new Error(errorData.message || 'Failed to reschedule the appointment');
+                }
 
                 alert('Appointment rescheduled successfully');
                 window.location.href = 'viewappointments.html'; // Redirect back to view appointments
             } catch (error) {
                 console.error(error.message);
                 alert('Error: ' + error.message);
+            } finally {
+                // Reset the button and hide loading message
+                button.disabled = false; 
+                button.innerText = 'Reschedule Appointment';
+                loadingMessage.style.display = 'none'; // Hide loading message
             }
         });
     </script>
